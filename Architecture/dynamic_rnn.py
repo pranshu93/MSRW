@@ -10,6 +10,7 @@ from rnn import FastRNNCell,FastGRNNCell
 import sys
 
 #os.environ["CUDA_VISIBLE_DEVICES"]=""
+
 def main():
     def getArgs():
         parser = argparse.ArgumentParser(description='HyperParameters for Dynamic RNN Algorithm')
@@ -17,8 +18,8 @@ def main():
         parser.add_argument('-unl', type=str, default="tanh" , help='tanh/sigmoid/relu/quantSigm/quantTanh')
         parser.add_argument('-gunl', type=str, default="tanh" , help='tanh/sigmoid/relu/quantSigm/quantTanh')
         parser.add_argument('-ggnl', type=str, default="sigmoid" , help='tanh/sigmoid/relu/quantSigm/quantTanh')
-        parser.add_argument('-ur', type=int, default=None, help='Rank of U matrix')
-        parser.add_argument('-wr', type=int, default=None, help='Rank of W matrix')    
+        parser.add_argument('-ur', type=float, default=1, help='Rank of U matrix')
+        parser.add_argument('-wr', type=float, default=1, help='Rank of W matrix')    
         parser.add_argument('-w', type=int, default=32, help='Window Length')
         parser.add_argument('-sp', type=float, default=0.5, help='Stride as % of Window Length(0.25/0.5/0.75/1)')
         parser.add_argument('-lr', type=float, default=0.01, help='Learning Rate of Optimisation')
@@ -68,8 +69,8 @@ def main():
     window = args.w
     stride = int(window * args.sp); 
 
-    fileloc = os.path.abspath('../Datasets/Radar2/')
-    tryloc = os.path.abspath('../Datasets/Austere/')
+    fileloc = os.path.abspath('/home/cse/phd/anz178419/MSRW/Datasets/Radar2/')
+    tryloc = os.path.abspath('/home/cse/phd/anz178419/MSRW/Datasets/Austere/')
     #modelloc = "/scratch/cse/phd/anz178419/Models/MSRW/"
 
     cv_ind = args.fn
@@ -91,7 +92,7 @@ def main():
     max_length = args.ml#np.percentile(cut_lengths,0)
     #print(max_length)
 
-    seq_max_len = int(np.ceil(float(max_length-window)/stride))
+    seq_max_len = int(np.floor(float(max_length-window)/stride)+1)
 
     all_cuts = []; [all_cuts.extend(train_cuts[i]) for i in range(train_cuts.shape[0])];
     mean = np.mean(np.array(all_cuts)); std = np.std(np.array(all_cuts));
@@ -103,7 +104,7 @@ def main():
 
     lr = args.lr
 
-    num_epochs = 5
+    num_epochs = 500
     batch_size = args.bs
 
     hidden_dim = args.hs
