@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=2
 #SBATCH --mem=20GB
 #SBATCH --time=1-0
-#SBATCH --mail-type=ALL
+#SBATCH --mail-type=FAIL
 #SBATCH --mail-user=roy.174@osu.edu
 
 source activate l3embedding-new
