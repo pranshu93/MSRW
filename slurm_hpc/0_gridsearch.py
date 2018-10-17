@@ -22,7 +22,7 @@ def generate_trainstring(v):
 
     res_str=[]
     for i in range(1,6):
-        res_str.append(call_str + " -fn " + str(i) + " -out $outname")
+        res_str.append(call_str + " -fn " + str(i) + " -bat slurm -out $outname")
 
     return res_str
 
