@@ -28,6 +28,7 @@ def main():
         parser.add_argument('-ot', type=int, default=1, help='Adam(False)/Momentum(True)')
         parser.add_argument('-ml', type=int, default=768, help='Maximum slice length of cut taken for classification')
         parser.add_argument('-fn', type=int, default=3, help='Fold Number to classify for cross validation[1/2/3/4/5]')
+        parser.add_argument('-out', type=str, default=os.devnull, help='Output filename')
         return parser.parse_args()
 
     args = getArgs()
@@ -167,7 +168,16 @@ def main():
             #best_iter = i
         #print(i,tr_acc,acc,try_acc)
     print(max_acc,max_try_acc)
+
+    # Create result string
+    res = [args.ggnl, args.gunl, args.ur, args.wr, args.w, args.sp, args.lr, args.bs, args.hs, args.ot,
+           args.ml, args.fn, max_acc]
+
+    # Print to output file
+    np.save(args.out, np.array(res))
+
     return [max_acc, max_try_acc]
+
     '''
     saver.restore(sess, modelloc + "bestmodel.ckpt")
     #print(test_cuts[0][0:int(max_length)])
