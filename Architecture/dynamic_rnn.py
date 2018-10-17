@@ -70,7 +70,7 @@ def main():
     stride = int(window * args.sp); 
 
     fileloc = os.path.abspath('/home/cse/phd/anz178419/MSRW/Datasets/Radar2/')
-    tryloc = os.path.abspath('/home/cse/phd/anz178419/MSRW/Datasets/Austere/')
+    #tryloc = os.path.abspath('/home/cse/phd/anz178419/MSRW/Datasets/Austere/')
     #modelloc = "/scratch/cse/phd/anz178419/Models/MSRW/"
 
     cv_ind = args.fn
@@ -81,7 +81,7 @@ def main():
             labels = np.load(fileloc + "/f" + str(i) + "_cuts_lbls.npy"); train_cuts_lbls = np.concatenate([train_cuts_lbls,labels]);
 
     test_cuts = np.load(fileloc + "/f" + str(cv_ind - 1) + "_cuts.npy"); test_cuts_lbls = np.load(fileloc + "/f" + str(cv_ind - 1) + "_cuts_lbls.npy")
-    try_cuts = np.load(tryloc + "/f_cuts.npy"); try_cuts_lbls = np.load(tryloc + "/f_cuts_lbls.npy")
+    #try_cuts = np.load(tryloc + "/f_cuts.npy"); try_cuts_lbls = np.load(tryloc + "/f_cuts_lbls.npy")
 
 
     #max_length = 0;
@@ -100,7 +100,7 @@ def main():
     train_cuts_n = []; test_cuts_n = []; try_cuts_n = [];
     [train_cuts_n.append(((np.array(train_cuts[i])-mean)/std).tolist()) for i in range(train_cuts.shape[0])]
     [test_cuts_n.append(((np.array(test_cuts[i])-mean)/std).tolist()) for i in range(test_cuts.shape[0])]
-    [try_cuts_n.append(((np.array(try_cuts[i])-mean)/std).tolist()) for i in range(try_cuts.shape[0])]
+    #[try_cuts_n.append(((np.array(try_cuts[i])-mean)/std).tolist()) for i in range(try_cuts.shape[0])]
 
     lr = args.lr
 
@@ -112,7 +112,7 @@ def main():
 
     train_data, train_labels, train_seqlen = process(train_cuts_n,train_cuts_lbls)
     test_data, test_labels, test_seqlen = process(test_cuts_n,test_cuts_lbls)
-    try_data, try_labels, try_seqlen = process(try_cuts_n,try_cuts_lbls)
+    #try_data, try_labels, try_seqlen = process(try_cuts_n,try_cuts_lbls)
 
     tf.reset_default_graph()
 
@@ -157,10 +157,10 @@ def main():
         acc = forward_iter(test_data,test_labels,test_seqlen,slice(0,test_data.__len__()),False)
 
         tr_acc = forward_iter(train_data,train_labels,train_seqlen,slice(0,train_data.__len__()),False)
-        try_acc = forward_iter(try_data,try_labels,try_seqlen,slice(0,try_data.__len__()),False)
+        #try_acc = forward_iter(try_data,try_labels,try_seqlen,slice(0,try_data.__len__()),False)
 
         if(max_acc < acc):	max_acc = acc
-        if(max_try_acc < try_acc):	max_try_acc = try_acc
+        #if(max_try_acc < try_acc):	max_try_acc = try_acc
 
             #saver.save(sess, modelloc + "bestmodel.ckpt")	
 

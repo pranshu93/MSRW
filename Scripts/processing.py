@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 def process(data,labels,window,overlap):
     cr_data = []; cr_labels = [];
@@ -12,8 +13,10 @@ def process(data,labels,window,overlap):
     return cr_data, cr_labels
 
 def create():
-    fileloc = "/home/pranshu/Desktop/Academics/IITD/Ph.D/Research/Microsoft Workshop/Dataset/Activity/"
-    filestrs = ["Human/","Non Human/"] 
+    # TODO: Parameterize these
+    fileloc = "/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/FastGRNN/Data/Austere/"
+    filestrs = ["Austere_322_human/","Austere_255_non_humans/"]
+
     data = []; labels = [];
     [[data.append(np.fromfile(open(os.path.join(os.path.join(fileloc,filestr),filename),"r"),dtype=np.uint16).tolist()) for filename in os.listdir(os.path.join(fileloc,filestr))] for filestr in filestrs]; data = np.array(data,dtype=object);
     [labels.extend([i] * [None for filename in os.listdir(os.path.join(fileloc,filestrs[i]))].__len__()) for i in range(filestrs.__len__())]
