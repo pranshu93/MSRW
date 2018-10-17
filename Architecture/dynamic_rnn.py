@@ -116,8 +116,8 @@ def main():
     if args.q15:
         mean = int(mean)
         std = int(std)
-        [train_cuts_n.append(q15_to_float(np.array(train_cuts[i])).tolist()) for i in range(train_cuts.shape[0])]
-        [test_cuts_n.append(q15_to_float(np.array(test_cuts[i])).tolist()) for i in range(test_cuts.shape[0])]
+        [train_cuts_n.append(q15_to_float(((np.array(train_cuts[i])-mean)/std).astype(int)).tolist()) for i in range(train_cuts.shape[0])]
+        [test_cuts_n.append(q15_to_float(((np.array(test_cuts[i])-mean)/std).astype(int)).tolist()) for i in range(test_cuts.shape[0])]
     else:
         [train_cuts_n.append(((np.array(train_cuts[i]) - mean) / std).tolist()) for i in range(train_cuts.shape[0])]
         [test_cuts_n.append(((np.array(test_cuts[i]) - mean) / std).tolist()) for i in range(test_cuts.shape[0])]
