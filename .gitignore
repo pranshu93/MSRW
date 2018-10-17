@@ -1,3 +1,5 @@
 .idea/
 results.npy
 __pycache__
+*.out
+*.pbs.o*
