@@ -16,9 +16,6 @@ sys.path.insert(0, '../')
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 
-np.random.seed(42)
-tf.set_random_seed(42)
-
 def main():
     def getArgs():
         parser = argparse.ArgumentParser(description='HyperParameters for Dynamic RNN Algorithm')
