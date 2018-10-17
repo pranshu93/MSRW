@@ -38,6 +38,7 @@ def main():
         parser.add_argument('-fn', type=int, default=3, help='Fold Number to classify for cross validation[1/2/3/4/5]')
         parser.add_argument('-q15', type=bool, default=False, help='Represent input as Q15?')
         parser.add_argument('-out', type=str, default=os.devnull, help='Output filename')
+        parser.add_argument('-bat', type=str, default='pbs', help='Batch system')
         return parser.parse_args()
 
     args = getArgs()
@@ -82,7 +83,13 @@ def main():
     window = args.w
     stride = int(window * args.sp); 
 
-    fileloc = os.path.abspath('/fs/project/PAS1090/radar/Austere/')
+    if args.bat=='pbs':
+        fileloc = os.path.abspath('/fs/project/PAS1090/radar/Austere/')
+    elif args.bat=='slurm':
+        fileloc = os.path.abspath('/scratch/dr2915/Austere/')
+    else:
+        raise NotImplementedError
+
     #tryloc = os.path.abspath('/home/cse/phd/anz178419/MSRW/Datasets/Austere/')
     #modelloc = "/scratch/cse/phd/anz178419/Models/MSRW/"
 
