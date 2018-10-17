@@ -170,11 +170,14 @@ def main():
     print(max_acc,max_try_acc)
 
     # Create result string
-    res = [args.ggnl, args.gunl, args.ur, args.wr, args.w, args.sp, args.lr, args.bs, args.hs, args.ot,
+    results_list = [args.ggnl, args.gunl, args.ur, args.wr, args.w, args.sp, args.lr, args.bs, args.hs, args.ot,
            args.ml, args.fn, max_acc]
 
     # Print to output file
-    np.save(args.out, np.array(res))
+    out_handle = open(args.out, "a")
+    # Write a line of output
+    out_handle.write('\t'.join(map(str, results_list)) + '\n')
+    out_handle.close()
 
     return [max_acc, max_try_acc]
 
@@ -217,5 +220,5 @@ def main():
         print (formatp(v))
     '''
 if __name__ == '__main__':
-    ret = main()    
+    ret = main()
     #sys.exit(ret)

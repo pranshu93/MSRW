@@ -34,6 +34,6 @@ results = pool.map(generate_trainstring, hyperparams)
 results = [item for sublist in results for item in sublist]
 
 with open('train_hyperparams.sh', 'w') as f:
-    print('outname=`echo $0 | sed "s/.sh/.npy/g"`', file=f)
+    print('outname=`echo $0 | sed "s/.sh/.out/g"`', file=f)
 with open('train_hyperparams.sh', 'a') as f:
     print(*results, sep = "\n", file=f)
