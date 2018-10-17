@@ -13,8 +13,6 @@ fi
 ########################################################
 output_prefix="${1%.*}_"
 ext=".${1##*.}"
-echo $output_prefix
-echo $ext
 
 # Split file (all but the first line (outname=`echo $0 | sed "s/.sh/.out/g"`))
 num_lines=`cat $1 | wc -l`
