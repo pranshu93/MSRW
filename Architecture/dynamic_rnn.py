@@ -16,6 +16,9 @@ sys.path.insert(0, '../')
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 
+np.random.seed(42)
+tf.set_random_seed(42)
+
 def main():
     def getArgs():
         parser = argparse.ArgumentParser(description='HyperParameters for Dynamic RNN Algorithm')
@@ -33,11 +36,15 @@ def main():
         parser.add_argument('-ot', type=int, default=1, help='Adam(False)/Momentum(True)')
         parser.add_argument('-ml', type=int, default=768, help='Maximum slice length of cut taken for classification')
         parser.add_argument('-fn', type=int, default=3, help='Fold Number to classify for cross validation[1/2/3/4/5]')
+        parser.add_argument('-q15', type=bool, default=False, help='Represent input as Q15?')
         parser.add_argument('-out', type=str, default=os.devnull, help='Output filename')
         return parser.parse_args()
 
     args = getArgs()
     print(args.ot)
+
+    def q15_to_float(arr):
+        return arr*6.0/32768.0
     
     def forward_iter(data, labels, data_seqlen, index, code):
         batchx = data[index];  batchy = labels[index]; batchz = data_seqlen[index]
@@ -104,8 +111,16 @@ def main():
     mean = np.mean(np.array(all_cuts)); std = np.std(np.array(all_cuts));
     #print(mean,std)
     train_cuts_n = []; test_cuts_n = []; try_cuts_n = [];
-    [train_cuts_n.append(((np.array(train_cuts[i])-mean)/std).tolist()) for i in range(train_cuts.shape[0])]
-    [test_cuts_n.append(((np.array(test_cuts[i])-mean)/std).tolist()) for i in range(test_cuts.shape[0])]
+
+    # Are we representing input as Q15?
+    if args.q15:
+        mean = int(mean)
+        std = int(std)
+        [train_cuts_n.append(q15_to_float(np.array(train_cuts[i])).tolist()) for i in range(train_cuts.shape[0])]
+        [test_cuts_n.append(q15_to_float(np.array(test_cuts[i])).tolist()) for i in range(test_cuts.shape[0])]
+    else:
+        [train_cuts_n.append(((np.array(train_cuts[i]) - mean) / std).tolist()) for i in range(train_cuts.shape[0])]
+        [test_cuts_n.append(((np.array(test_cuts[i]) - mean) / std).tolist()) for i in range(test_cuts.shape[0])]
     #[try_cuts_n.append(((np.array(try_cuts[i])-mean)/std).tolist()) for i in range(try_cuts.shape[0])]
 
     lr = args.lr
