@@ -1,5 +1,5 @@
 #PBS -l nodes=2:ppn=10:gpus=1:default
-#PBS -l walltime=5:00:00
+#PBS -l walltime=0:30:00
 #PBS -j oe
 #PBS -m ae
 #PBS -S /bin/bash
