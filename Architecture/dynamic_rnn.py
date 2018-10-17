@@ -44,7 +44,7 @@ def main():
     print(args.ot)
 
     def q15_to_float(arr):
-        return arr*6.0/32768.0
+        return arr*10000.0/32768.0
     
     def forward_iter(data, labels, data_seqlen, index, code):
         batchx = data[index];  batchy = labels[index]; batchz = data_seqlen[index]
