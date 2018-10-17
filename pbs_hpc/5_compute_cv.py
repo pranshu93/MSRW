@@ -12,7 +12,7 @@ df = pd.read_table(filename, header=None,
                    names=['ggnl', 'gunl', 'ur', 'wr', 'w', 'sp', 'lr', 'bs', 'hs', 'ot', 'ml', 'fn', 'Acc'])
 
 # Only taking rows with valid accuracy
-df['Tr_acc'].replace('', np.nan, inplace=True)
+df['Acc'].replace('', np.nan, inplace=True)
 df.dropna(subset=['Acc'], inplace=True)
 
 # Compute average accuracy, grouping by hyperparams
