@@ -70,7 +70,7 @@ def main():
     window = args.w
     stride = int(window * args.sp); 
 
-    fileloc = os.path.abspath('/home/cse/phd/anz178419/MSRW/Datasets/Radar2/')
+    fileloc = os.path.abspath('/fs/project/PAS1090/radar/Austere/')
     #tryloc = os.path.abspath('/home/cse/phd/anz178419/MSRW/Datasets/Austere/')
     #modelloc = "/scratch/cse/phd/anz178419/Models/MSRW/"
 
