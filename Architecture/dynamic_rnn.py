@@ -39,6 +39,8 @@ def main():
         parser.add_argument('-q15', type=bool, default=False, help='Represent input as Q15?')
         parser.add_argument('-out', type=str, default=os.devnull, help='Output filename')
         parser.add_argument('-bat', type=str, default='pbs', help='Batch system')
+        parser.add_argument('-type', type=str, default='tar', help='Classification type: \'tar\' for target,' \
+                                                                   ' \'act\' for activity)')
         return parser.parse_args()
 
     args = getArgs()
@@ -84,9 +86,9 @@ def main():
     stride = int(window * args.sp); 
 
     if args.bat=='pbs':
-        fileloc = os.path.abspath('/fs/project/PAS1090/radar/Austere/')
+        fileloc = os.path.abspath('/fs/project/PAS1090/radar/Austere/Bora_New_Detector/')
     elif args.bat=='slurm':
-        fileloc = os.path.abspath('/scratch/dr2915/Austere/')
+        fileloc = os.path.abspath('/scratch/dr2915/Austere/Bora_New_Detector/')
     else:
         raise NotImplementedError
 
@@ -97,10 +99,10 @@ def main():
     train_cuts = []; train_cuts_lbls = [];
     for i in range(5):
         if(i != cv_ind - 1):
-            cuts = np.load(fileloc + "/f" + str(i) + "_cuts.npy"); train_cuts = np.concatenate([train_cuts,cuts]);
-            labels = np.load(fileloc + "/f" + str(i) + "_cuts_lbls.npy"); train_cuts_lbls = np.concatenate([train_cuts_lbls,labels]);
+            cuts = np.load(fileloc + args.type + str(i) + "_cuts.npy"); train_cuts = np.concatenate([train_cuts,cuts]);
+            labels = np.load(fileloc + args.type + str(i) + "_cuts_lbls.npy"); train_cuts_lbls = np.concatenate([train_cuts_lbls,labels]);
 
-    test_cuts = np.load(fileloc + "/f" + str(cv_ind - 1) + "_cuts.npy"); test_cuts_lbls = np.load(fileloc + "/f" + str(cv_ind - 1) + "_cuts_lbls.npy")
+    test_cuts = np.load(fileloc + fileloc + args.type + str(cv_ind - 1) + "_cuts.npy"); test_cuts_lbls = np.load(fileloc + "/f" + str(cv_ind - 1) + "_cuts_lbls.npy")
     #try_cuts = np.load(tryloc + "/f_cuts.npy"); try_cuts_lbls = np.load(tryloc + "/f_cuts_lbls.npy")
 
 
