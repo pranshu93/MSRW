@@ -14,15 +14,15 @@ def process(data,labels,window,overlap):
 
 def create():
     # TODO: Parameterize these
-    fileloc = "/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/FastGRNN/Data/Austere/"
-    filestrs = ["Austere_322_human/","Austere_255_non_humans/"]
+    fileloc = "/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/FastGRNN/Data/Austere/Bora_New_Detector/"
+    filestrs = ["austere_608_human_new_detector_th_22_bgr_19/","austere_154_bike_new_detector_th_22_bgr_19/"]
 
     data = []; labels = [];
     [[data.append(np.fromfile(open(os.path.join(os.path.join(fileloc,filestr),filename),"r"),dtype=np.uint16).tolist()) for filename in os.listdir(os.path.join(fileloc,filestr))] for filestr in filestrs]; data = np.array(data,dtype=object);
     [labels.extend([i] * [None for filename in os.listdir(os.path.join(fileloc,filestrs[i]))].__len__()) for i in range(filestrs.__len__())]
 
     data = np.array(data)
-    print(data[0].__len__())
+    print(data.__len__())
     labels = np.array(labels)
 
     train_prop = 0.5; test_prop=0.3;
@@ -31,8 +31,8 @@ def create():
     data = data[indices]; labels = labels[indices];
 
     for i in range(5):        
-        np.save(fileloc + "f" + str(i) + "_cuts.npy",data[slice(int(0.2*i*data.shape[0]),int(0.2*(i+1)*data.shape[0]))])
-        np.save(fileloc + "f" + str(i) + "_cuts_lbls.npy",labels[slice(int(0.2*i*data.shape[0]),int(0.2*(i+1)*data.shape[0]))])
+        np.save(fileloc + "act" + str(i) + "_cuts.npy",data[slice(int(0.2*i*data.shape[0]),int(0.2*(i+1)*data.shape[0]))])
+        np.save(fileloc + "act" + str(i) + "_cuts_lbls.npy",labels[slice(int(0.2*i*data.shape[0]),int(0.2*(i+1)*data.shape[0]))])
     #train_ind = int(train_prop*data.shape[0]); test_ind = int((train_prop+test_prop)*data.shape[0]);
 
     #train_cuts = data[:train_ind]; train_cuts_lbls = labels[:train_ind]; 
