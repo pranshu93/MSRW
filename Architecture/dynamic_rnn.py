@@ -44,7 +44,6 @@ def main():
         return parser.parse_args()
 
     args = getArgs()
-    print(args.ot)
 
     def q15_to_float(arr):
         return arr*100000.0/32768.0
