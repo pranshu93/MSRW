@@ -3,8 +3,8 @@
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=2
-#SBATCH --mem=20GB
-#SBATCH --time=2-0
+#SBATCH --mem=5GB
+#SBATCH --time=4-0
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=roy.174@osu.edu
 

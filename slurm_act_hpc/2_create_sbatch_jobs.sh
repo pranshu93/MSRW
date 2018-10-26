@@ -22,6 +22,7 @@ then
 fi
 
 if [[ $1 == *"q15"* ]]; then submit_file=3_SUBMIT_q15_batch_jobs.sh
+elif [[ $1 == *"big"* ]]; then submit_file=3_SUBMIT_big_batch_jobs.sh
 else submit_file=3_SUBMIT_batch_jobs.sh; fi
 
 create_batch_jobs $1 > $submit_file
