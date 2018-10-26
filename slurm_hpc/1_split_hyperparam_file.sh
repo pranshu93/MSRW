@@ -12,7 +12,7 @@ fi
 # Extract file name and extension
 ########################################################
 output_prefix="${1%.*}_"
-ext=".${1##*.}"
+ext="_spl.${1##*.}"
 
 # Split file (all but the first line (outname=`echo $0 | sed "s/.sh/.out/g"`))
 num_lines=`cat $1 | wc -l`
