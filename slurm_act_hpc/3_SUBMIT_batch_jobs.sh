@@ -1,64 +1,64 @@
-qsub -v  filename=train_hyperparams_01.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_001.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_02.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_002.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_03.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_003.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_04.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_004.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_05.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_005.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_06.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_006.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_07.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_007.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_08.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_008.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_09.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_009.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_10.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_010.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_11.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_011.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_12.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_012.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_13.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_013.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_14.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_014.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_15.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_015.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_16.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_016.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_17.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_017.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_18.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_018.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_19.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_019.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_20.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_020.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_21.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_021.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_22.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_022.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_23.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_023.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_24.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_024.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_25.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_025.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_26.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_026.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_27.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_027.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_28.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_028.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_29.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_029.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_30.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_030.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_31.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_031.sh batch_job.sbatch
 sleep 1
-qsub -v  filename=train_hyperparams_32.sh batch_job.pbs
+sbatch --export=filename=train_hyperparams_032.sh batch_job.sbatch
 sleep 1
