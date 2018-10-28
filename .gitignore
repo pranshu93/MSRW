@@ -1,4 +1,5 @@
 .idea/
+!.idea/runConfigurations
 results.npy
 __pycache__
 *.cv
