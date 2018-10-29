@@ -37,7 +37,7 @@ def main():
         parser.add_argument('-ml', type=int, default=768, help='Maximum slice length of cut taken for classification')
         parser.add_argument('-fn', type=int, default=3, help='Fold Number to classify for cross validation[1/2/3/4/5]')
         parser.add_argument('-q15', type=bool, default=False, help='Represent input as Q15?')
-        parser.add_argument('-out', type=str, default=os.devnull, help='Output filename')
+        parser.add_argument('-out', type=str, default=sys.stdout, help='Output filename')
         parser.add_argument('-bat', type=str, default='pbs', help='Batch system')
         parser.add_argument('-type', type=str, default='tar', help='Classification type: \'tar\' for target,' \
                                                                    ' \'act\' for activity)')
