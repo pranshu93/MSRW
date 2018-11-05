@@ -5,10 +5,9 @@
 create_batch_jobs()
 {
     split_files=`(ls $1*_spl.sh)`
-
     for file in $split_files
     do
-        echo "qsub -l walltime=$2 -v filename=$file batch_job.pbs"
+        echo "sbatch -t $2 --export=filename=$file batch_job.sbatch"
         echo sleep 1
     done
 }
