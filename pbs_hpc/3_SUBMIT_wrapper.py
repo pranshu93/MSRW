@@ -1,2 +1,3 @@
+import sys
 import subprocess
-subprocess.run(["sh","3_SUBMIT_tar_jobs.sh"])
+subprocess.run(["sh",sys.argv[1]])
