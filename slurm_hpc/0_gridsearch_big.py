@@ -21,7 +21,7 @@ parser.add_argument('-type', type=str, default='tar', help='tar/act')
 
 if len(sys.argv)==1:
     parser.print_help()
-    exit(1)
+    sys.exit(1)
 
 args = parser.parse_args()
 
