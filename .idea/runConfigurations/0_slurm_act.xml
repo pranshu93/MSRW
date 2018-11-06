@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="slurm_tar" type="PythonConfigurationType" factoryName="Python">
+  <configuration default="false" name="0_slurm_act" type="PythonConfigurationType" factoryName="Python">
     <module name="MSRW" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
@@ -13,7 +13,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/slurm_hpc/0_gridsearch.py" />
-    <option name="PARAMETERS" value="-type tar" />
+    <option name="PARAMETERS" value="-type act" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />
