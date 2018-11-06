@@ -2,6 +2,9 @@ import numpy as np
 import os
 import argparse
 
+# Set random seed
+np.random.seed(42)
+
 parser = argparse.ArgumentParser(description='Arguments')
 parser.add_argument('-type', type=str, default='tar', help='Classification type: \'tar\' for target,' \
                                                                    ' \'act\' for activity)')
