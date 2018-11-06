@@ -1,5 +1,5 @@
-.idea/
-!.idea/runConfigurations
+.idea/*.[ix]ml
+.idea/inspectionProfiles
 results.npy
 __pycache__
 *.cv
