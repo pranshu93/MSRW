@@ -6,9 +6,9 @@
     <envs>
       <env name="PYTHONUNBUFFERED" value="1" />
     </envs>
-    <option name="SDK_HOME" value="" />
+    <option name="SDK_HOME" value="sftp://osu8577@owens.osc.edu:22/usr/local/python/3.6-conda5.2/bin/python" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/pbs_hpc" />
-    <option name="IS_MODULE_SDK" value="true" />
+    <option name="IS_MODULE_SDK" value="false" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />

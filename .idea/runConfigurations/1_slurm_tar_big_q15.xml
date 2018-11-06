@@ -3,9 +3,12 @@
     <module name="MSRW" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
-    <option name="SDK_HOME" value="" />
+    <envs>
+      <env name="PYTHONUNBUFFERED" value="1" />
+    </envs>
+    <option name="SDK_HOME" value="sftp://dr2915@127.0.0.1:8026/home/dr2915/miniconda3/envs/l3embedding-new/bin/python" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/slurm_hpc" />
-    <option name="IS_MODULE_SDK" value="true" />
+    <option name="IS_MODULE_SDK" value="false" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
