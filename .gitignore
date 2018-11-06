@@ -1,5 +1,6 @@
 .idea/*.[ix]ml
 .idea/inspectionProfiles
+.idea/dictionaries
 results.npy
 __pycache__
 *.cv
