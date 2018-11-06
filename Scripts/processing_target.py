@@ -1,5 +1,17 @@
 import numpy as np
 import os
+import argparse
+
+parser = argparse.ArgumentParser(description='Arguments')
+parser.add_argument('-type', type=str, default='tar', help='Classification type: \'tar\' for target,' \
+                                                                   ' \'act\' for activity)')
+parser.add_argument('-base', type=str, default='/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/' \
+                                               'Research/FastGRNN/Data/Austere/Old_Detector/',
+                    help='Base location of data')
+parser.add_argument('-hum', type=str, default='Austere_322_human', help='Human cuts folder relative to base')
+parser.add_argument('-nhum', type=str, default='Austere_255_non_humans', help='Nonhuman cuts folder relative to base')
+
+args=parser.parse_args()
 
 def process(data,labels,window,overlap):
     cr_data = []; cr_labels = [];
@@ -13,9 +25,8 @@ def process(data,labels,window,overlap):
     return cr_data, cr_labels
 
 def create():
-    # TODO: Parameterize these
-    fileloc = "/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/FastGRNN/Data/Austere/Bora_New_Detector/"
-    filestrs = ["austere_608_human_new_detector_th_22_bgr_19/", "austere_465_non_human_dog_and_cow_th_22_bgr_19/"]
+    fileloc = args.base
+    filestrs = [args.hum, args.nhum]
 
     data = []; labels = [];
     [[data.append(np.fromfile(open(os.path.join(os.path.join(fileloc,filestr),filename),"r"),dtype=np.uint16).tolist()) for filename in os.listdir(os.path.join(fileloc,filestr))] for filestr in filestrs]; data = np.array(data,dtype=object);
@@ -31,8 +42,10 @@ def create():
     data = data[indices]; labels = labels[indices];
 
     for i in range(5):        
-        np.save(fileloc + "tar" + str(i) + "_cuts.npy",data[slice(int(0.2*i*data.shape[0]),int(0.2*(i+1)*data.shape[0]))])
-        np.save(fileloc + "tar" + str(i) + "_cuts_lbls.npy",labels[slice(int(0.2*i*data.shape[0]),int(0.2*(i+1)*data.shape[0]))])
+        np.save(os.path.join(fileloc, args.type + str(i) + "_cuts.npy"),
+                data[slice(int(0.2*i*data.shape[0]),int(0.2*(i+1)*data.shape[0]))])
+        np.save(os.path.join(fileloc, args.type + str(i) + "_cuts_lbls.npy"),
+                labels[slice(int(0.2*i*data.shape[0]),int(0.2*(i+1)*data.shape[0]))])
     #train_ind = int(train_prop*data.shape[0]); test_ind = int((train_prop+test_prop)*data.shape[0]);
 
     #train_cuts = data[:train_ind]; train_cuts_lbls = labels[:train_ind]; 
