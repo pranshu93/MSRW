@@ -13,8 +13,8 @@ import sys
 
 # Making sure MSRW is part of python path
 sys.path.insert(0, '../')
-config = tf.ConfigProto()
-config.gpu_options.allow_growth = True
+#config = tf.ConfigProto()
+#config.gpu_options.allow_growth = True
 
 np.random.seed(42)
 tf.set_random_seed(42)
@@ -172,8 +172,9 @@ def main():
     correct_pred = tf.equal(pred_labels, tf.argmax(Y,1))
     accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
-    sess = tf.InteractiveSession(config=config)
-    sess.run(tf.group(tf.initialize_all_variables(), tf.initialize_variables(tf.local_variables()))) 
+    #sess = tf.InteractiveSession(config=config)
+    sess = tf.InteractiveSession()
+    sess.run(tf.group(tf.initialize_all_variables(), tf.initialize_variables(tf.local_variables())))
 
     saver = tf.train.Saver()
 
