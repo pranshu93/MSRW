@@ -13,7 +13,7 @@ p3 =  [0.5,0.75,1]
 p4 = [0.005]
 p5 = [32]
 p6 = [16,32,48]
-p7 = [0,1]
+p7 = [0]
 p8 = [768]
 
 parser = argparse.ArgumentParser()
