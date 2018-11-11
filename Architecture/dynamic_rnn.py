@@ -11,6 +11,14 @@ import sys
 
 #os.environ["CUDA_VISIBLE_DEVICES"]=""
 
+# Making sure MSRW is part of python path
+sys.path.insert(0, '../')
+#config = tf.ConfigProto()
+#config.gpu_options.allow_growth = True
+
+np.random.seed(42)
+tf.set_random_seed(42)
+
 def main():
     def getArgs():
         parser = argparse.ArgumentParser(description='HyperParameters for Dynamic RNN Algorithm')
@@ -28,10 +36,17 @@ def main():
         parser.add_argument('-ot', type=int, default=1, help='Adam(False)/Momentum(True)')
         parser.add_argument('-ml', type=int, default=768, help='Maximum slice length of cut taken for classification')
         parser.add_argument('-fn', type=int, default=3, help='Fold Number to classify for cross validation[1/2/3/4/5]')
+        parser.add_argument('-q15', type=bool, default=False, help='Represent input as Q15?')
+        parser.add_argument('-out', type=str, default=sys.stdout, help='Output filename')
+        parser.add_argument('-bat', type=str, default='pbs', help='Batch system')
+        parser.add_argument('-type', type=str, default='tar', help='Classification type: \'tar\' for target,' \
+                                                                   ' \'act\' for activity)')
         return parser.parse_args()
 
     args = getArgs()
-    print(args.ot)
+
+    def q15_to_float(arr):
+        return arr*100000.0/32768.0
     
     def forward_iter(data, labels, data_seqlen, index, code):
         batchx = data[index];  batchy = labels[index]; batchz = data_seqlen[index]
@@ -69,19 +84,25 @@ def main():
     window = args.w
     stride = int(window * args.sp); 
 
-    fileloc = os.path.abspath('/home/cse/phd/anz178419/MSRW/Datasets/Radar2/')
-    tryloc = os.path.abspath('/home/cse/phd/anz178419/MSRW/Datasets/Austere/')
+    if args.bat=='pbs':
+        fileloc = os.path.abspath('/fs/project/PAS1090/radar/Austere/Bora_New_Detector/')
+    elif args.bat=='slurm':
+        fileloc = os.path.abspath('/scratch/dr2915/Austere/Bora_New_Detector/')
+    else:
+        raise NotImplementedError
+
+    #tryloc = os.path.abspath('/home/cse/phd/anz178419/MSRW/Datasets/Austere/')
     #modelloc = "/scratch/cse/phd/anz178419/Models/MSRW/"
 
     cv_ind = args.fn
     train_cuts = []; train_cuts_lbls = [];
     for i in range(5):
         if(i != cv_ind - 1):
-            cuts = np.load(fileloc + "/f" + str(i) + "_cuts.npy"); train_cuts = np.concatenate([train_cuts,cuts]);
-            labels = np.load(fileloc + "/f" + str(i) + "_cuts_lbls.npy"); train_cuts_lbls = np.concatenate([train_cuts_lbls,labels]);
+            cuts = np.load(fileloc + "/" + args.type + str(i) + "_cuts.npy"); train_cuts = np.concatenate([train_cuts,cuts]);
+            labels = np.load(fileloc + "/" + args.type + str(i) + "_cuts_lbls.npy"); train_cuts_lbls = np.concatenate([train_cuts_lbls,labels]);
 
-    test_cuts = np.load(fileloc + "/f" + str(cv_ind - 1) + "_cuts.npy"); test_cuts_lbls = np.load(fileloc + "/f" + str(cv_ind - 1) + "_cuts_lbls.npy")
-    try_cuts = np.load(tryloc + "/f_cuts.npy"); try_cuts_lbls = np.load(tryloc + "/f_cuts_lbls.npy")
+    test_cuts = np.load(fileloc + "/" + args.type + str(cv_ind - 1) + "_cuts.npy"); test_cuts_lbls = np.load(fileloc + "/" + args.type + str(cv_ind - 1) + "_cuts_lbls.npy")
+    #try_cuts = np.load(tryloc + "/f_cuts.npy"); try_cuts_lbls = np.load(tryloc + "/f_cuts_lbls.npy")
 
 
     #max_length = 0;
@@ -98,9 +119,17 @@ def main():
     mean = np.mean(np.array(all_cuts)); std = np.std(np.array(all_cuts));
     #print(mean,std)
     train_cuts_n = []; test_cuts_n = []; try_cuts_n = [];
-    [train_cuts_n.append(((np.array(train_cuts[i])-mean)/std).tolist()) for i in range(train_cuts.shape[0])]
-    [test_cuts_n.append(((np.array(test_cuts[i])-mean)/std).tolist()) for i in range(test_cuts.shape[0])]
-    [try_cuts_n.append(((np.array(try_cuts[i])-mean)/std).tolist()) for i in range(try_cuts.shape[0])]
+
+    # Are we representing input as Q15?
+    if args.q15:
+        mean = int(mean)
+        std = int(std)
+        [train_cuts_n.append(q15_to_float(((np.array(train_cuts[i])-mean)/std).astype(int)).tolist()) for i in range(train_cuts.shape[0])]
+        [test_cuts_n.append(q15_to_float(((np.array(test_cuts[i])-mean)/std).astype(int)).tolist()) for i in range(test_cuts.shape[0])]
+    else:
+        [train_cuts_n.append(((np.array(train_cuts[i]) - mean) / std).tolist()) for i in range(train_cuts.shape[0])]
+        [test_cuts_n.append(((np.array(test_cuts[i]) - mean) / std).tolist()) for i in range(test_cuts.shape[0])]
+    #[try_cuts_n.append(((np.array(try_cuts[i])-mean)/std).tolist()) for i in range(try_cuts.shape[0])]
 
     lr = args.lr
 
@@ -112,7 +141,7 @@ def main():
 
     train_data, train_labels, train_seqlen = process(train_cuts_n,train_cuts_lbls)
     test_data, test_labels, test_seqlen = process(test_cuts_n,test_cuts_lbls)
-    try_data, try_labels, try_seqlen = process(try_cuts_n,try_cuts_lbls)
+    #try_data, try_labels, try_seqlen = process(try_cuts_n,try_cuts_lbls)
 
     tf.reset_default_graph()
 
@@ -143,8 +172,9 @@ def main():
     correct_pred = tf.equal(pred_labels, tf.argmax(Y,1))
     accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
+    #sess = tf.InteractiveSession(config=config)
     sess = tf.InteractiveSession()
-    sess.run(tf.group(tf.initialize_all_variables(), tf.initialize_variables(tf.local_variables()))) 
+    sess.run(tf.group(tf.initialize_all_variables(), tf.initialize_variables(tf.local_variables())))
 
     saver = tf.train.Saver()
 
@@ -157,17 +187,29 @@ def main():
         acc = forward_iter(test_data,test_labels,test_seqlen,slice(0,test_data.__len__()),False)
 
         tr_acc = forward_iter(train_data,train_labels,train_seqlen,slice(0,train_data.__len__()),False)
-        try_acc = forward_iter(try_data,try_labels,try_seqlen,slice(0,try_data.__len__()),False)
+        #try_acc = forward_iter(try_data,try_labels,try_seqlen,slice(0,try_data.__len__()),False)
 
         if(max_acc < acc):	max_acc = acc
-        if(max_try_acc < try_acc):	max_try_acc = try_acc
+        #if(max_try_acc < try_acc):	max_try_acc = try_acc
 
             #saver.save(sess, modelloc + "bestmodel.ckpt")	
 
             #best_iter = i
         #print(i,tr_acc,acc,try_acc)
     print(max_acc,max_try_acc)
+
+    # Create result string
+    results_list = [args.ggnl, args.gunl, args.ur, args.wr, args.w, args.sp, args.lr, args.bs, args.hs, args.ot,
+           args.ml, args.fn, max_acc]
+
+    # Print to output file
+    out_handle = open(args.out, "a")
+    # Write a line of output
+    out_handle.write('\t'.join(map(str, results_list)) + '\n')
+    out_handle.close()
+
     return [max_acc, max_try_acc]
+
     '''
     saver.restore(sess, modelloc + "bestmodel.ckpt")
     #print(test_cuts[0][0:int(max_length)])
@@ -207,5 +249,5 @@ def main():
         print (formatp(v))
     '''
 if __name__ == '__main__':
-    ret = main()    
+    ret = main()
     #sys.exit(ret)

@@ -1,0 +1,11 @@
+.idea/*.[ix]ml
+.idea/inspectionProfiles
+.idea/dictionaries
+results.npy
+__pycache__
+*.cv
+*.out
+*.pbs.o*
+*.txt
+3_SUBMIT_*.sh
+*_spl.sh
