@@ -38,9 +38,10 @@ def main():
         parser.add_argument('-fn', type=int, default=3, help='Fold Number to classify for cross validation[1/2/3/4/5]')
         parser.add_argument('-q15', type=bool, default=False, help='Represent input as Q15?')
         parser.add_argument('-out', type=str, default=sys.stdout, help='Output filename')
-        parser.add_argument('-bat', type=str, default='pbs', help='Batch system')
-        parser.add_argument('-type', type=str, default='tar', help='Classification type: \'tar\' for target,' \
-                                                                   ' \'act\' for activity)')
+        #parser.add_argument('-type', type=str, default='tar', help='Classification type: \'tar\' for target,' \
+        #                                                           ' \'act\' for activity)')
+        parser.add_argument('-base', type=str, default='/fs/project/PAS1090/radar/Austere/Bora_New_Detector/',
+                            help='Base location of data')
         return parser.parse_args()
 
     args = getArgs()
@@ -84,13 +85,14 @@ def main():
     window = args.w
     stride = int(window * args.sp); 
 
-    if args.bat=='pbs':
+    '''if args.bat=='pbs':
         fileloc = os.path.abspath('/fs/project/PAS1090/radar/Austere/Bora_New_Detector/')
     elif args.bat=='slurm':
         fileloc = os.path.abspath('/scratch/dr2915/Austere/Bora_New_Detector/')
     else:
-        raise NotImplementedError
+        raise NotImplementedError'''
 
+    fileloc = os.path.abspath(args.base)
     #tryloc = os.path.abspath('/home/cse/phd/anz178419/MSRW/Datasets/Austere/')
     #modelloc = "/scratch/cse/phd/anz178419/Models/MSRW/"
 

@@ -18,6 +18,7 @@ p8 = [768]
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-type', type=str, default='tar', help='tar/act')
+parser.add_argument('-base', type=str, help='Base path of data')
 
 if len(sys.argv)==1:
     parser.print_help()
@@ -33,7 +34,7 @@ def generate_trainstring(v):
 
     res_str=[]
     for i in range(1,6):
-        res_str.append(call_str + " -fn " + str(i) + " -type " + args.type + " -out $outname")
+        res_str.append(call_str + " -fn " + str(i) + " -type " + args.type + " -base " + args.base + "-out $outname")
 
     return res_str
 
