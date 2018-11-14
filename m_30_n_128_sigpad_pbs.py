@@ -33,7 +33,7 @@ import hpc_scripts.split_hyp_wrapper_1
 
 # Create batch job
 print('###### hpc_scripts/create_batch_wrapper #####')
-sys.argv=init_argv+[jobfolder+prefix+'_','1:00:00','pbs']
+sys.argv=init_argv+[jobfolder+prefix+'_','3:00:00','pbs']
 import hpc_scripts.create_batch_wrapper_2
 
 # Submit
