@@ -38,8 +38,8 @@ def main():
         parser.add_argument('-fn', type=int, default=3, help='Fold Number to classify for cross validation[1/2/3/4/5]')
         parser.add_argument('-q15', type=bool, default=False, help='Represent input as Q15?')
         parser.add_argument('-out', type=str, default=sys.stdout, help='Output filename')
-        #parser.add_argument('-type', type=str, default='tar', help='Classification type: \'tar\' for target,' \
-        #                                                           ' \'act\' for activity)')
+        parser.add_argument('-type', type=str, default='tar', help='Classification type: \'tar\' for target,' \
+                                                                   ' \'act\' for activity)')
         parser.add_argument('-base', type=str, default='/fs/project/PAS1090/radar/Austere/Bora_New_Detector/',
                             help='Base location of data')
         return parser.parse_args()
