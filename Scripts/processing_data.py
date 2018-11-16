@@ -9,8 +9,9 @@ parser = argparse.ArgumentParser(description='Arguments')
 parser.add_argument('-type', type=str, default='tar', help='Classification type: \'tar\' for target,' \
                                                                    ' \'act\' for activity)')
 parser.add_argument('-base', type=str, default='/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/' \
-                                               'Research/FastGRNN/Data/Austere/Old_Detector/',
+                                               'Research/Deep_Learning_Radar/Data/Austere/Old_Detector/',
                     help='Base location of data')
+parser.add_argument('-outdir', type=str, default=None, help='Output folder')
 parser.add_argument('-hum', type=str, default='Austere_322_human', help='Human cuts folder relative to base')
 parser.add_argument('-nhum', type=str, default='Austere_255_non_humans', help='Nonhuman cuts folder relative to base')
 
@@ -28,6 +29,13 @@ def process(data,labels,window,overlap):
     return cr_data, cr_labels
 
 def create():
+    if args.outdir == None:
+        outdir = args.base
+    else:
+        outdir = args.outdir
+    # Silently create output directory if it doesn't exist
+    os.makedirs(outdir, exist_ok=True)
+
     fileloc = args.base
     filestrs = [args.hum, args.nhum]
 
@@ -45,9 +53,9 @@ def create():
     data = data[indices]; labels = labels[indices];
 
     for i in range(5):        
-        np.save(os.path.join(fileloc, args.type + str(i) + "_cuts.npy"),
+        np.save(os.path.join(outdir, args.type + str(i) + "_cuts.npy"),
                 data[slice(int(0.2*i*data.shape[0]),int(0.2*(i+1)*data.shape[0]))])
-        np.save(os.path.join(fileloc, args.type + str(i) + "_cuts_lbls.npy"),
+        np.save(os.path.join(outdir, args.type + str(i) + "_cuts_lbls.npy"),
                 labels[slice(int(0.2*i*data.shape[0]),int(0.2*(i+1)*data.shape[0]))])
     #train_ind = int(train_prop*data.shape[0]); test_ind = int((train_prop+test_prop)*data.shape[0]);
 
