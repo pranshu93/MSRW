@@ -6,7 +6,7 @@ import os
 prefix='h_404_b_558'
 
 # Number of splits of hyperparam file
-num_splits='50'
+num_splits='512'
 
 # Base path of data
 base='/scratch/dr2915/Austere/Activity'
@@ -19,7 +19,7 @@ hum_fold='austere_404_human'
 nhum_fold='Bike_558'
 
 # Running time
-walltime='2-0'
+walltime='1-0'
 
 # Search big search space
 big_search='True'
