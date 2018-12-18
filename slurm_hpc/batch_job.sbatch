@@ -7,7 +7,7 @@
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=roy.174@osu.edu
 
-source activate l3embedding-new
+source activate tfgpu
 echo "FILENAME: " ${filename}
 module purge
 module load cudnn/8.0v6.0
