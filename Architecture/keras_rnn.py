@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 import sys
 import os
-
+from keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
 from keras.optimizers import Adam, SGD
 from keras.utils import np_utils
 from keras.models import Sequential
@@ -28,7 +28,6 @@ class EarlyStoppingAfterNEpochs(EarlyStopping):
     def on_epoch_end(self, epoch, logs=None):
         if epoch > self.start_epoch:
             super().on_epoch_end(epoch, logs)
-
 
 # Input directory
 in_path = sys.argv[1]
@@ -111,3 +110,33 @@ model.add(Dense(nb_classes, activation='softmax'))
 model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 model.summary()
 
+# Begin training
+print("Train...")
+
+# Callbacks
+reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1,
+                              patience=5, min_lr=0.000001, verbose=1)
+early_stop = EarlyStoppingAfterNEpochs(monitor='val_loss', patience=10, verbose=1, start_epoch=50)
+model_ckpt = ModelCheckpoint(model_file, monitor='val_loss', save_best_only=True, verbose=0)
+
+# Fit
+history = model.fit(X_train, y_train, batch_size=batch_size, epochs=nb_epochs, validation_data=(X_val, y_val),
+                    callbacks=[reduce_lr, early_stop, model_ckpt])
+# Append params to history
+# history.params["lr"] = learning_rate
+# history.params["dr"] = dropout_rate
+# history.params["n_hid"] = hidden_units
+# history.params["opt"] = sys.argv[7]
+
+# Begin testing
+score, acc = model.evaluate(X_test, y_test,
+                            batch_size=batch_size)
+print('Test score:', score)
+print('Test accuracy:', acc)
+# Append test details to history
+history.history["test_loss"] = score
+history.history["test_acc"] = acc
+
+# Save history and params
+with open(history_fname, 'wb') as file_pi:
+    pickle.dump(history.history, file_pi)
