@@ -14,6 +14,7 @@ parser.add_argument('-base', type=str, default='/mnt/6b93b438-a3d4-40d2-9f3d-d8c
 parser.add_argument('-outdir', type=str, default=None, help='Output folder')
 parser.add_argument('-hum', type=str, default='Austere_322_human', help='Human cuts folder relative to base')
 parser.add_argument('-nhum', type=str, default='Austere_255_non_humans', help='Nonhuman cuts folder relative to base')
+parser.add_argument('-fold', type=bool, default=True, help='Create folds out of data')
 
 args=parser.parse_args()
 
@@ -52,11 +53,18 @@ def create():
     indices = np.random.permutation(data.__len__())
     data = data[indices]; labels = labels[indices];
 
-    for i in range(5):        
-        np.save(os.path.join(outdir, args.type + str(i) + "_cuts.npy"),
-                data[slice(int(0.2*i*data.shape[0]),int(0.2*(i+1)*data.shape[0]))])
-        np.save(os.path.join(outdir, args.type + str(i) + "_cuts_lbls.npy"),
-                labels[slice(int(0.2*i*data.shape[0]),int(0.2*(i+1)*data.shape[0]))])
+    if args.fold:
+        # Create folds
+        for i in range(5):
+            np.save(os.path.join(outdir, args.type + str(i) + "_cuts.npy"),
+                    data[slice(int(0.2*i*data.shape[0]),int(0.2*(i+1)*data.shape[0]))])
+            np.save(os.path.join(outdir, args.type + str(i) + "_cuts_lbls.npy"),
+                    labels[slice(int(0.2*i*data.shape[0]),int(0.2*(i+1)*data.shape[0]))])
+    else:
+        # Create one data and one label file
+        np.save(os.path.join(outdir, args.type + "_cuts_all.npy", data))
+        np.save(os.path.join(outdir, args.type + "_cuts_lbls_all.npy", data))
+
     #train_ind = int(train_prop*data.shape[0]); test_ind = int((train_prop+test_prop)*data.shape[0]);
 
     #train_cuts = data[:train_ind]; train_cuts_lbls = labels[:train_ind]; 
