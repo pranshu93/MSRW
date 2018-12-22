@@ -12,6 +12,8 @@ from keras.layers import Reshape, Dropout #InputLayer
 from keras.layers.recurrent import LSTM, GRU
 import tensorflow as tf
 from keras import backend as K
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn.model_selection import GridSearchCV
 
 # Do not allocate all the memory for visible GPU
 config = tf.ConfigProto()
@@ -77,11 +79,8 @@ print('MODEL PATH:', model_file)
 # Add diagnostic line
 print('OUTPUT FILENAME: ', history_fname)
 
-# Get fold number
-fold_num=sys.argv[9]
-
-# Load data
-
+# Load data from .npy data/label file full prefix
+data_pref=sys.argv[9]
 
 
 # Initialize model
