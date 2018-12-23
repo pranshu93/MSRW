@@ -81,7 +81,8 @@ print('OUTPUT FILENAME: ', history_fname)
 
 # Load data from .npy data/label file full prefix
 data_pref=sys.argv[9]
-
+X_train = np.load(os.path.join(data_pref, '_cuts_all.npy'))
+y_train = np.load(os.path.join(data_pref, '_cuts_lbls_all.npy'))
 
 # Initialize model
 model = Sequential()
