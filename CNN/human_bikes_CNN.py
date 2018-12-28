@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import sys
 import math
 from keras.utils import np_utils
 from sklearn.model_selection import train_test_split
@@ -9,23 +10,27 @@ from keras.constraints import maxnorm
 from keras.callbacks import LearningRateScheduler
 from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn.model_selection import GridSearchCV
+import tensorflow as tf
+tf.set_random_seed(42);
 
 # Do not allocate all the memory for visible GPU
 import os
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
-import tensorflow as tf
 from keras import backend as K
 config = tf.ConfigProto()
 config.gpu_options.allow_growth=True
 sess = tf.Session(config=config, graph=tf.get_default_graph())
 K.set_session(sess)
 
-train = pd.read_csv('bike_human.csv')
-train = train.sample(frac=1)
+# train = pd.read_csv('bike_human.csv')
+train = pd.read_csv(sys.argv[1]);
+train = train.sample(frac=1, random_state=42)
 
 X = (train.iloc[:,:train.shape[1]-1].values).astype('float32')
 Y = train.iloc[:,-1].values.astype('int32')
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=42) 
+#X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+X_train=X
+Y_train=Y
 
 def build_model(filters_1 = 64, filters_2 = 64, pool_size = (2, 2), fc_units_1 = 32, fc_units_2 = 32, dropout=0.2):
     model = Sequential()
@@ -53,13 +58,13 @@ windows = 10
 window_dim = 50
 
 X_train = X_train.reshape(X_train.shape[0], windows, window_dim, 1)
-X_test = X_test.reshape(X_test.shape[0], windows, window_dim, 1)
+# X_test = X_test.reshape(X_test.shape[0], windows, window_dim, 1)
 
 lrate = LearningRateScheduler(scheduler)
 
 model = KerasClassifier(build_fn = build_model, verbose=1)
 batch_size = [10, 20]
-epochs = [10]
+epochs = [50]
 dropout = [0.2, 0.3]
 filters1 = [32, 64]
 filters2 = [16, 32, 64]
@@ -77,5 +82,5 @@ params = grid_result.cv_results_['params']
 for mean, stdev, param in zip(means, stds, params):
     print("%f (%f) with: %r" % (mean, stdev, param))
 
-scores = model.evaluate(X_test, Y_test, verbose=0)
-print('Accuracy:', scores[1]*100)
+# scores = model.evaluate(X_test, Y_test, verbose=0)
+# print('Accuracy:', scores[1]*100)
