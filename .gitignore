@@ -7,3 +7,4 @@ __pycache__
 *.txt
 3_SUBMIT_*.sh
 *_spl.sh
+.ipynb_checkpoints/

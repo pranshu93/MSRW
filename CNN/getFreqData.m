@@ -1,4 +1,4 @@
-function train_row = getdata(fileName, path_dir)
+function train_row = getFreqData(fileName, path_dir)
 
 addpath('C:\Users\Sangeeta\Desktop\MATLAB_Scripts\Scripts')
 cd(path_dir);
