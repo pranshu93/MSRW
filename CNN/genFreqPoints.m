@@ -44,7 +44,7 @@ function genFreqPoints(prefix, basepath, folder_neg, folder_pos, outpath)
         %end
     end
 
-window = 256;
+window = 250;
 remove = 0;
 remove_begin = 2;
 remove_last = remove_begin;
