@@ -1,4 +1,4 @@
-function genFreqPoints(prefix, basepath, folder_neg, folder_pos, outpath)
+function genFreqPointsRNN(prefix, basepath, folder_neg, folder_pos, outpath)
 %num = 1000;
 
     function train_row = getFreqData(fileName, path_dir)
@@ -23,10 +23,11 @@ function genFreqPoints(prefix, basepath, folder_neg, folder_pos, outpath)
         
         %s = spectrogram(x,window,noverlap,nfft)
         S = spectrogram(Data, FftWindow, FftWindow - FftStep, Nfft);
+        S = reshape(S, 1, []);
         A = abs(S);
         phi = angle(S);
-        A = A';
-        phi = phi';
+        %A = A';
+        %phi = phi';
         train_row = horzcat(A,phi);
         
         %TimeFreq = spectrogram_nohamming(Data, FftWindow, FftWindow - FftStep, Nfft, Rate);
@@ -44,7 +45,7 @@ function genFreqPoints(prefix, basepath, folder_neg, folder_pos, outpath)
         %end
     end
 
-window = 250;
+window = 256;
 remove = 0;
 remove_begin = 2;
 remove_last = remove_begin;
@@ -117,10 +118,10 @@ end
 
 cmag = train_data(:,1:window);
 cphi = train_data(:,window+1:window*2);
-cmag = (cmag - (mean(mean(cmag)).*ones(size(cmag))))./1000;
-cphi = (cphi - (mean(mean(cphi)).*ones(size(cphi))));
-cmag = round(cmag .*100)./100;
-cphi = round(cphi .*100)./100;
+%cmag = (cmag - (mean(mean(cmag)).*ones(size(cmag))))./1000;
+%cphi = (cphi - (mean(mean(cphi)).*ones(size(cphi))));
+%cmag = round(cmag .*100)./100;
+%cphi = round(cphi .*100)./100;
 
 train_labels = ones(countpos+countneg,1);
 train_labels(countpos+1:countpos+countneg,1) = 0;
@@ -132,5 +133,5 @@ data = horzcat(train,train_labels);
 %cd('C:\Users\Sangeeta\Desktop\MATLAB_Scripts\Data_Repository')
 cd(outpath);
 %csvwrite('bike_human_full.csv',data)
-csvwrite([prefix,'_spectrogram.csv'],data)
+csvwrite([prefix,'_RNNspectrogram.csv'],data)
 end
