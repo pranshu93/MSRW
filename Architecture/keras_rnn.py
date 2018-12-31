@@ -25,6 +25,16 @@ config.gpu_options.allow_growth=True
 sess = tf.Session(config=config)
 K.set_session(sess)
 
+class EarlyStoppingAfterNEpochs(EarlyStopping):
+    def __init__(self, monitor='val_loss',
+             min_delta=0, patience=0, verbose=0, mode='auto', start_epoch = 50): # add argument for starting epoch
+        super(EarlyStoppingAfterNEpochs, self).__init__()
+        self.start_epoch = start_epoch
+
+    def on_epoch_end(self, epoch, logs=None):
+        if epoch > self.start_epoch:
+            super().on_epoch_end(epoch, logs)
+
 # Args
 parser = argparse.ArgumentParser(description='HyperParameters for Keras RNN Algorithm')
 parser.add_argument('-ct', type=int, default=1, help='LSTM(0)/GRU(1)')
@@ -36,7 +46,7 @@ parser.add_argument('-hs', type=int, default=16, help='Hidden Layer Size')
 parser.add_argument('-dr', type=float, default=0.2, help='Dropout rate')
 parser.add_argument('-ot', type=int, default=1, help='Adam(0)/Momentum(1)')
 parser.add_argument('-st', type=int, default=0, help='Stacked? No(0)/Yes(1)')
-parser.add_argument('-out', type=str, default=sys.stdout, help='Output filename')
+parser.add_argument('-out', type=str, default='default.out', help='Output filename')
 parser.add_argument('-pref', type=str, default='h=468_b=558_winlen=384_str=128', help='Data prefix')
 parser.add_argument('-base', type=str, default='/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/'
                                                'Research/Deep_Learning_Radar/TimeFreqRNN/Data/Austere/Activity/All/',
@@ -62,8 +72,10 @@ batch_size = args.bs  # 64
 # Optimizer
 if args.ot == 1:
     optimizer = Adam(lr=learning_rate)
+    opt_name='Adam'
 else:
     optimizer = SGD(lr=learning_rate, momentum=0.9, nesterov=True)
+    opt_name = 'SGD'
 # LSTM/GRU?
 if args.ct == 1:
     rnn='GRU'
@@ -90,10 +102,7 @@ out_fname=args.out
 model_path = os.path.join(args.model,'model', rnn)
 if not os.path.exists(model_path):
     os.makedirs(model_path)
-if out_fname==sys.stdout:
-    model_file = os.path.join(model_path, 'model.h5py')
-else:
-    model_file = os.path.join(model_path, out_fname.replace('out', 'h5py'))
+model_file = os.path.join(model_path, out_fname.replace('out', 'h5py'))
 print('MODEL PATH:', model_file)
 
 # Add diagnostic line
@@ -104,7 +113,6 @@ train_all=np.loadtxt(os.path.join(base_dir, data_pref + "_RNNspectrogram.csv"), 
 # Get train data
 X_train = train_all[:,0:-1]
 y_train = train_all[:,-1]
-# y_train = np_utils.to_categorical(y_train, nb_classes) # Doesn't work with StratifiedKFold
 
 # Standardize data
 mean=np.mean(X_train,0)
@@ -143,23 +151,38 @@ def create_model():
     return model
 
 # Callbacks
-reduce_lr = ReduceLROnPlateau(monitor='loss', factor=0.1,
+reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1,
                               patience=5, min_lr=0.000001, verbose=1)
-early_stop = EarlyStopping(monitor='loss', patience=10, verbose=1)
-#model_ckpt = ModelCheckpoint(model_file, monitor='val_loss', save_best_only=True, verbose=0) # only works with val_loss
+early_stop = EarlyStoppingAfterNEpochs(monitor='val_loss', patience=10, verbose=1, start_epoch=50)
+model_ckpt = ModelCheckpoint(model_file, monitor='val_loss', save_best_only=True, verbose=0)
 
-model = KerasClassifier(build_fn = create_model, verbose=1, batch_size=batch_size, epochs=nb_epochs)
-                                                        #, callbacks=[reduce_lr, early_stop, model_ckpt])
 # Begin training
 print("Train...")
-kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-results = cross_val_score(model, X_train, y_train, cv=kfold, fit_params={'callbacks': [reduce_lr, early_stop]})
-mean_cv_score=results.mean()
-print(mean_cv_score)
+# kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+# results = cross_val_score(model, X_train, y_train, cv=kfold, fit_params={'callbacks': [reduce_lr, early_stop]})
+folds = list(StratifiedKFold(n_splits=5, shuffle=True, random_state=42).split(X_train, y_train))
+results=np.array([0]*5)
+for j, (train_idx, val_idx) in enumerate(folds):
+    print('\nFold ', j)
+    X_train_cv = X_train[train_idx]
+    y_train_cv = np_utils.to_categorical(y_train[train_idx], nb_classes)
+    X_valid_cv = X_train[val_idx]
+    y_valid_cv = np_utils.to_categorical(y_train[val_idx], nb_classes)
+
+    # Create model
+    model = create_model()
+
+    # Fit
+    history = model.fit(X_train_cv, y_train_cv, batch_size=batch_size, epochs=nb_epochs, validation_data=(X_valid_cv, y_valid_cv),
+                        callbacks=[reduce_lr, early_stop, model_ckpt])
+
+# Print CV accuracy
+mean_cv_score = np.array(history.history['val_acc']).mean()
+print('Mean 5-fold CV score=', mean_cv_score)
 
 ## Save crossvalidation score with params
 # Create result string
-results_list = [sys.argv[8], hidden_units, nb_epochs, dropout_rate, learning_rate, batch_size, optimizer, stacked, mean_cv_score]
+results_list = [sys.argv[8], hidden_units, nb_epochs, dropout_rate, learning_rate, batch_size, opt_name, stacked, mean_cv_score]
 # Print to output file
 out_handle = open(out_fname, "a")
 # Write a line of output
