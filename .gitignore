@@ -8,3 +8,4 @@ __pycache__
 3_SUBMIT_*.sh
 *_spl.sh
 .ipynb_checkpoints/
+model/
