@@ -11,7 +11,7 @@ from keras.callbacks import LearningRateScheduler
 from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn.model_selection import GridSearchCV
 import tensorflow as tf
-tf.set_random_seed(42);
+tf.set_random_seed(42)
 
 # Do not allocate all the memory for visible GPU
 import os
