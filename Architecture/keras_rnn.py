@@ -161,7 +161,7 @@ print("Train...")
 # kfold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 # results = cross_val_score(model, X_train, y_train, cv=kfold, fit_params={'callbacks': [reduce_lr, early_stop]})
 folds = list(StratifiedKFold(n_splits=5, shuffle=True, random_state=42).split(X_train, y_train))
-results=np.array([0]*5)
+results=np.array([0.0]*5)
 for j, (train_idx, val_idx) in enumerate(folds):
     print('\nFold ', j)
     X_train_cv = X_train[train_idx]
@@ -175,14 +175,14 @@ for j, (train_idx, val_idx) in enumerate(folds):
     # Fit
     history = model.fit(X_train_cv, y_train_cv, batch_size=batch_size, epochs=nb_epochs, validation_data=(X_valid_cv, y_valid_cv),
                         callbacks=[reduce_lr, early_stop, model_ckpt])
-
+    results[j] = history.history['val_acc'][nb_epochs-1]
 # Print CV accuracy
-mean_cv_score = np.array(history.history['val_acc']).mean()
+mean_cv_score = results.mean()
 print('Mean 5-fold CV score=', mean_cv_score)
 
 ## Save crossvalidation score with params
 # Create result string
-results_list = [sys.argv[8], hidden_units, nb_epochs, dropout_rate, learning_rate, batch_size, opt_name, stacked, mean_cv_score]
+results_list = [rnn, hidden_units, nb_epochs, dropout_rate, learning_rate, batch_size, opt_name, stacked, mean_cv_score]
 # Print to output file
 out_handle = open(out_fname, "a")
 # Write a line of output
