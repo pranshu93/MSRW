@@ -17,6 +17,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import cross_val_score
 
+tf.set_random_seed(42)
 # Do not allocate all the memory for visible GPU
 config = tf.ConfigProto()
 config.gpu_options.allow_growth=True
