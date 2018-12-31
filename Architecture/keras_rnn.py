@@ -3,6 +3,7 @@ import pickle
 import numpy as np
 import sys
 import os
+import argparse
 from keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
 from keras.optimizers import Adam, SGD
 from keras.utils import np_utils
@@ -24,28 +25,53 @@ config.gpu_options.allow_growth=True
 sess = tf.Session(config=config)
 K.set_session(sess)
 
+# Args
+parser = argparse.ArgumentParser(description='HyperParameters for Keras RNN Algorithm')
+parser.add_argument('-ct', type=int, default=1, help='LSTM(0)/GRU(1)')
+parser.add_argument('-w', type=int, default=32, help='Window Length')
+parser.add_argument('-lr', type=float, default=0.01, help='Learning Rate of Optimisation')
+parser.add_argument('-bs', type=int, default=128, help='Batch Size of Optimisation')
+parser.add_argument('-ep', type=int, default=100, help='Number of epochs')
+parser.add_argument('-hs', type=int, default=16, help='Hidden Layer Size')
+parser.add_argument('-dr', type=float, default=0.2, help='Dropout rate')
+parser.add_argument('-ot', type=int, default=1, help='Adam(0)/Momentum(1)')
+parser.add_argument('-st', type=int, default=0, help='Stacked? No(0)/Yes(1)')
+parser.add_argument('-out', type=str, default=sys.stdout, help='Output filename')
+parser.add_argument('-pref', type=str, default='h=468_b=558_winlen=384_str=128', help='Data prefix')
+parser.add_argument('-base', type=str, default='/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/'
+                                               'Research/Deep_Learning_Radar/TimeFreqRNN/Data/Austere/Activity/All/',
+                    help='Base location of data')
+parser.add_argument('-model', type=str, default='.', help='Model path')
+
+args=parser.parse_args()
+
 # Input directory
-data_pref = sys.argv[1]
+base_dir = args.base
+# Data prefix
+data_pref = args.pref
 # Num classes
 nb_classes = 2
 np.random.seed(42)  # for reproducibility
-n_specbins = 512
-hidden_units = int(sys.argv[2])  # 256
-nb_epochs = int(sys.argv[3])  # 100
-dropout_rate = float(sys.argv[4])  # 0.2
-learning_rate = float(sys.argv[5])  # 1e-4
+input_dim = args.w
+hidden_units = args.hs  # 256
+nb_epochs = args.ep  # 100
+dropout_rate = args.dr  # 0.2
+learning_rate = args.lr  # 1e-4
 # Batch size
-batch_size = int(sys.argv[6])  # 64
+batch_size = args.bs  # 64
 # Optimizer
-if sys.argv[7].lower() == 'Adam'.lower():
+if args.ot == 1:
     optimizer = Adam(lr=learning_rate)
-elif sys.argv[7].lower() == 'SGD'.lower():
+else:
     optimizer = SGD(lr=learning_rate, momentum=0.9, nesterov=True)
 # LSTM/GRU?
-rnn=sys.argv[8]
+if args.ct == 1:
+    rnn='GRU'
+else:
+    rnn='LSTM'
 
 # Stacked?
-if len(sys.argv) > 9 and sys.argv[9].lower().__contains__('Stack'.lower()):  # Last argument can be stack/stacked/none
+if args.st==1:  # Last argument can be stack/stacked/none
     stacked = True
     return_sequences = True
 else:
@@ -58,26 +84,23 @@ if dropout_rate == 0.0:
 else:
     dropout = False
 
-# Output filenames
-out_pref=os.path.split(data_pref)[-1] # output prefix
-if stacked:
-    out_fname = os.path.join(out_pref + '_' + rnn + '_h=' + sys.argv[2] + '_e=' + sys.argv[3] + '_d=' + sys.argv[4] + '_l=' + sys.argv[
-        5] + '_b=' + sys.argv[6] + '_' + sys.argv[7].lower() + '.out')
-else:
-    out_fname = os.path.join(out_pref + '_' + rnn + '_h=' + sys.argv[2] + '_e=' + sys.argv[3] + '_d=' + sys.argv[4] + '_l=' + sys.argv[
-        5] + '_b=' + sys.argv[6] + '_' + sys.argv[7].lower() + '.out')
+# Output filename
+out_fname=args.out
 
-model_path = os.path.join(os.getcwd(),'model', rnn)
+model_path = os.path.join(args.model,'model', rnn)
 if not os.path.exists(model_path):
     os.makedirs(model_path)
-model_file = os.path.join(model_path, out_fname.replace('out', 'h5py'))
+if out_fname==sys.stdout:
+    model_file = os.path.join(model_path, 'model.h5py')
+else:
+    model_file = os.path.join(model_path, out_fname.replace('out', 'h5py'))
 print('MODEL PATH:', model_file)
 
 # Add diagnostic line
 print('OUTPUT FILENAME: ', out_fname)
 
 # Load data from file full prefix
-train_all=np.loadtxt(os.path.join(data_pref + "_RNNspectrogram.csv"), delimiter=",")
+train_all=np.loadtxt(os.path.join(base_dir, data_pref + "_RNNspectrogram.csv"), delimiter=",")
 # Get train data
 X_train = train_all[:,0:-1]
 y_train = train_all[:,-1]
@@ -90,19 +113,19 @@ std[std[:]<0.00001]=1
 X_train=(X_train-mean)/std
 
 # Number of RNN steps in data
-n_steps = X_train.shape[1] // n_specbins
+n_steps = X_train.shape[1] // input_dim
 
 # Function to create model, required for KerasClassifier
 def create_model():
     # Initialize model
     model = Sequential()
-    model.add(Reshape((-1, n_specbins), input_shape=(X_train.shape[1],)))
+    model.add(Reshape((-1, input_dim), input_shape=(X_train.shape[1],)))
     # Add RNN unit
     if rnn.lower().__contains__('GRU'.lower()):
-        model.add(GRU(kernel_initializer="uniform", input_shape=(n_steps, n_specbins),
+        model.add(GRU(kernel_initializer="uniform", input_shape=(n_steps, input_dim),
                       recurrent_initializer="uniform", units=hidden_units, return_sequences=return_sequences))
     elif rnn.lower().__contains__('LSTM'.lower()):
-        model.add(LSTM(kernel_initializer="uniform", input_shape=(n_steps, n_specbins),
+        model.add(LSTM(kernel_initializer="uniform", input_shape=(n_steps, input_dim),
                        recurrent_initializer="uniform", units=hidden_units, unit_forget_bias=True))
     # Add dropout layer (optional)
     if dropout:
