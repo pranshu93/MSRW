@@ -29,7 +29,7 @@ data_pref = sys.argv[1]
 # Num classes
 nb_classes = 2
 np.random.seed(42)  # for reproducibility
-n_specbins = 256
+n_specbins = 512
 hidden_units = int(sys.argv[2])  # 256
 nb_epochs = int(sys.argv[3])  # 100
 dropout_rate = float(sys.argv[4])  # 0.2
