@@ -175,14 +175,15 @@ for j, (train_idx, val_idx) in enumerate(folds):
     # Fit
     history = model.fit(X_train_cv, y_train_cv, batch_size=batch_size, epochs=nb_epochs, validation_data=(X_valid_cv, y_valid_cv),
                         callbacks=[reduce_lr, early_stop, model_ckpt])
-    results[j] = history.history['val_acc'][nb_epochs-1]
+    results[j] = history.history['val_acc'][-1]
+    print('CV accuracy', results[j])
 # Print CV accuracy
 mean_cv_score = results.mean()
 print('Mean 5-fold CV score=', mean_cv_score)
 
 ## Save crossvalidation score with params
 # Create result string
-results_list = [rnn, hidden_units, nb_epochs, dropout_rate, learning_rate, batch_size, opt_name, stacked, mean_cv_score]
+results_list = [rnn, input_dim, hidden_units, dropout_rate, learning_rate, batch_size, opt_name, stacked, mean_cv_score]
 # Print to output file
 out_handle = open(out_fname, "a")
 # Write a line of output
