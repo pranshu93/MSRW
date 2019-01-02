@@ -3,7 +3,7 @@ import os
 
 ######################### ONLY MODIFY THESE VALUES #########################
 # Script prefix
-prefix='h=468_b_rad=485_winlen=384_str=128'
+prefix='h=468_b=558_winlen=384_str=128'
 
 # Number of splits of hyperparam file
 num_splits='32'
@@ -34,13 +34,13 @@ import hpc_scripts.gridsearch_keras_0
 
 # Split hyperparam file
 print('###### hpc_scripts/split_hyp_wrapper #####')
-sys.argv=init_argv+[os.path.join(jobfolder,prefix+'.sh'),num_splits]
+sys.argv=init_argv+[os.path.join(jobfolder,'keras_' + prefix + '.sh'),num_splits]
 import hpc_scripts.split_hyp_wrapper_1
 
 # Create batch job
 print('###### hpc_scripts/create_batch_wrapper #####')
-sys.argv=init_argv+[os.path.join(jobfolder,prefix+'_'),walltime,bat_sys]
+sys.argv=init_argv+[os.path.join(jobfolder,'keras_' + prefix + '_'),walltime,bat_sys]
 import hpc_scripts.create_batch_wrapper_2
 
 # Submit
-print("\nNow submit " + bat_sys + "_hpc/3_SUBMIT_"+prefix+"_jobs.sh on server")
+print("\nNow submit " + bat_sys + "_hpc/3_SUBMIT_keras_" + prefix + "_jobs.sh on server")
