@@ -102,7 +102,7 @@ out_fname=args.out
 model_path = os.path.join(args.model,'model', rnn)
 if not os.path.exists(model_path):
     os.makedirs(model_path)
-model_file = os.path.join(model_path, out_fname.replace('out', 'h5py'))
+model_file = os.path.join(model_path, os.path.split(out_fname.replace('out', 'h5py'))[-1])
 print('MODEL PATH:', model_file)
 
 # Add diagnostic line

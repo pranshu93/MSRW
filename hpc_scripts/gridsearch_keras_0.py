@@ -17,10 +17,8 @@ if len(sys.argv)<4:
 args = parser.parse_args()
 
 # Create output file
-out_folder = os.path.join('..', 'keras_rnn_' + args.bat + '_hpc')
-if not os.path.exists(out_folder):
-    os.makedirs(out_folder)
-out_file = os.path.join(out_folder, args.pref + '.sh')
+out_folder = os.path.join('..', args.bat + '_hpc')
+out_file = os.path.join(out_folder, 'keras_' + args.pref + '.sh')
 
 # Hyperparameters
 hidden=[64,100,200,256]
