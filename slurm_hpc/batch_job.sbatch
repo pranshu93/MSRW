@@ -10,5 +10,5 @@
 source activate tfgpu
 echo "FILENAME: " ${filename}
 module purge
-module load cudnn/8.0v6.0
+module load cuda/9.0.176
 bash ${filename}
