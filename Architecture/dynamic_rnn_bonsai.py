@@ -233,9 +233,21 @@ def getArgs():
     parser.add_argument('-ml', type=int, default=768, help='Maximum slice length of cut taken for classification')
     parser.add_argument('-fn', type=int, default=3, help='Fold Number to classify for cross validation[1/2/3/4/5]')
     parser.add_argument('-q15', type=bool, default=False, help='Represent input as Q15?')
+    parser.add_argument('')
     parser.add_argument('-out', type=str, default=sys.stdout, help='Output filename')
     parser.add_argument('-type', type=str, default='tar', help='Classification type: \'tar\' for target,' \
                                                                ' \'act\' for activity)')
+    parser.add_argument('-sig', type=float, default=1.0, help='Sigma parameter in Bonsai')
+    parser.add_argument('-dep', type=int, default=2, help='Depth of Bonsai tree')
+    parser.add_argument('-P', type=int, default=2, help='Bonsai projection dimension')
+    parser.add_argument('-rZ', type=float, default=1.0, help='Bonsai regularization Z')
+    parser.add_argument('-rT', type=float, default=1.0, help='Bonsai regularization Theta')
+    parser.add_argument('-rW', type=float, default=1.0, help='Bonsai regularization W')
+    parser.add_argument('-rV', type=float, default=1.0, help='Bonsai regularization V')
+    parser.add_argument('-sZ', type=float, default=1.0, help='Bonsai sparsity Z')
+    parser.add_argument('-sT', type=float, default=1.0, help='Bonsai sparsity T')
+    parser.add_argument('-sW', type=float, default=1.0, help='Bonsai sparsity W')
+    parser.add_argument('-sV', type=float, default=1.0, help='Bonsai sparsity V')
     parser.add_argument('-base', type=str, default='/fs/project/PAS1090/radar/Austere/Bora_New_Detector/',
                         help='Base location of data')
     return parser.parse_args()
@@ -283,10 +295,10 @@ window = args.w
 stride = int(window * args.sp);
 
 # Get Bonsai values
-sigma = args.sigma
-depth = args.depth
+sigma = args.sig
+depth = args.dep
 
-projectionDimension = args.proj_dim
+projectionDimension = args.P
 regZ = args.rZ
 regT = args.rT
 regW = args.rW
@@ -385,16 +397,16 @@ test_feats, test_labels, test_seqlen = process(test_cuts_n,test_cuts_lbls)
 X = tf.placeholder("float", [None, seq_max_len, window])
 #Y = tf.placeholder("float", [None, num_classes])
 
-learning_rate = tf.placeholder("float", shape=(), name='learning_rate')
+#learning_rate = tf.placeholder("float", shape=(), name='learning_rate')
 tf.set_random_seed(42)
 np.random.seed(42)
 
 seqlen = tf.placeholder(tf.int32, [None])
 
-features = dynamicRNNFeaturizer(X)
+#features = dynamicRNNFeaturizer(X)
 # Connect Bonsai graph
-bonsaiObj = Bonsai(dynamicRNNFeaturizer(X), numClasses, dataDimension,
-                       projectionDimension, depth, sigma)
+bonsaiObj = Bonsai(dynamicRNNFeaturizer(X), numClasses, hidden_dim, projectionDimension, depth, sigma,
+                   regW, regT, regV, regZ, sparW, sparT, sparV, sparZ, learningRate)
 
 ###### COMMENTED FROM PRANSHU'S CODE ######
 #logits = bonsaiObj.bonsaiGraph(features)
