@@ -122,7 +122,7 @@ class FastRNNBonsai:
 
 
     def bonsaiGraph(self, X):
-        # FastGRNN
+        # Fast(G)RNN
         X = tf.unstack(X, seq_max_len, 1)
         # rnn_cell = tf.contrib.rnn.BasicLSTMCell(hidden_dim)
         if (args.ct):
@@ -136,8 +136,9 @@ class FastRNNBonsai:
         outputs, states = tf.contrib.rnn.static_rnn(rnn_cell, X, dtype=tf.float32, sequence_length=seqlen)
         outputs = tf.stack(outputs)
         outputs = tf.transpose(outputs, [1, 0, 2])
-        batch_size = tf.shape(outputs)[0]
-        index = tf.range(0, batch_size) * seq_max_len + (seqlen - 1)
+        #batch_size = tf.shape(outputs)[0]
+        #index = tf.range(0, batch_size) * seq_max_len + (seqlen - 1)
+        index = tf.range(0, tf.shape(outputs)[0]) * seq_max_len + (seqlen - 1)
         X = tf.gather(tf.reshape(outputs, [-1, hidden_dim]), index)
 
         # Bonsai
