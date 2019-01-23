@@ -203,6 +203,5 @@ def dynamicRNNFeaturizer(x):
 
 X = tf.placeholder("float", [None, 768, 10])
 seqlen = tf.placeholder(tf.int32, [None])
-rnn=dynamicRNNFeaturizer(X)
-bonsaiObj = Bonsai(rnn)
+bonsaiObj = Bonsai(dynamicRNNFeaturizer(X))
 print('sai')
