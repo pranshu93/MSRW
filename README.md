@@ -7,7 +7,7 @@ Before running the HPC scripts, create virtual environment with Python 3.6.3 and
     
 2. Create virtual environment **using Python 3.6**
 
-    `conda create -n tfgpu python=3.6`
+    `conda create -n tfgpu python=3.6.7`
     
 3. Activate virtual environment, install remaining requirements
 
