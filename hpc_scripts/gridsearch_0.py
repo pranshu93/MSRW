@@ -9,10 +9,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-type', type=str, default='tar', help='tar/act/any other prefix')
 parser.add_argument('-base', type=str, help='Base path of data')
 parser.add_argument('-bat', type=str, default='pbs', help='Batch system (pbs/slurm)')
-parser.add_argument('-big', type=bool, default=False, help='Is this a big gridsearch?')
-parser.add_argument('-q15', type=bool, default=False, help='Is this a Q15 gridsearch?')
+parser.add_argument('-big', action='store_true', default=False, help='Is this a big gridsearch?')
+parser.add_argument('-q15', action='store_true', default=False, help='Is this a Q15 gridsearch?')
 
-if len(sys.argv)<6:
+if len(sys.argv)<2:
     parser.print_help()
     sys.exit(1)
 
