@@ -7,7 +7,7 @@ import argparse
 from math import sqrt
 from tensorflow.contrib import rnn
 from rnn import FastRNNCell,FastGRNNCell
-from utils import utils
+import utils as utils
 import sys
 
 #os.environ["CUDA_VISIBLE_DEVICES"]=""
@@ -162,7 +162,7 @@ class Bonsai:
         self.score, self.X_eval, self.T_eval, self.W_eval, self.V_eval, self.Z_eval = self.bonsaiGraph(self.x)
 
         if (self.numClasses > 2):
-            self.margin_loss = utils.multi_class_hinge_loss(tf.transpose(self.score), tf.argmax(self.y, 1), self.batch_th)
+            self.margin_loss = utils.multiClassHingeLoss(tf.transpose(self.score), tf.argmax(self.y, 1), self.batch_th)
             self.reg_loss = 0.5 * (self.lZ * tf.square(tf.norm(self.Z)) + self.lW * tf.square(tf.norm(self.W)) +
                                    self.lV * tf.square(tf.norm(self.V)) + self.lT * tf.square(tf.norm(self.T)))
             self.loss = self.margin_loss + self.reg_loss
@@ -499,10 +499,10 @@ for i in range(num_epochs):
                 Z_old = bonsaiObj.Z_eval.eval()
                 T_old = bonsaiObj.T_eval.eval()
 
-                W_new = utils.hard_thrsd(W_old, bonsaiObj.sW)
-                V_new = utils.hard_thrsd(V_old, bonsaiObj.sV)
-                Z_new = utils.hard_thrsd(Z_old, bonsaiObj.sZ)
-                T_new = utils.hard_thrsd(T_old, bonsaiObj.sT)
+                W_new = utils.hardThreshold(W_old, bonsaiObj.sW)
+                V_new = utils.hardThreshold(V_old, bonsaiObj.sV)
+                Z_new = utils.hardThreshold(Z_old, bonsaiObj.sZ)
+                T_new = utils.hardThreshold(T_old, bonsaiObj.sT)
 
                 if counter % num_iters == 0:
                     print("IHT", np.count_nonzero(W_new), np.count_nonzero(V_new), np.count_nonzero(Z_new),
@@ -519,10 +519,10 @@ for i in range(num_epochs):
                 Z_old = bonsaiObj.Z_eval.eval()
                 T_old = bonsaiObj.T_eval.eval()
 
-                W_new1 = utils.copy_support(W_new, W_old)
-                V_new1 = utils.copy_support(V_new, V_old)
-                Z_new1 = utils.copy_support(Z_new, Z_old)
-                T_new1 = utils.copy_support(T_new, T_old)
+                W_new1 = utils.copySupport(W_new, W_old)
+                V_new1 = utils.copySupport(V_new, V_old)
+                Z_new1 = utils.copySupport(Z_new, Z_old)
+                T_new1 = utils.copySupport(T_new, T_old)
 
                 if counter % num_iters == 0:
                     print("ST", np.count_nonzero(W_new1), np.count_nonzero(V_new1), np.count_nonzero(Z_new1),
@@ -539,10 +539,10 @@ for i in range(num_epochs):
             Z_old = bonsaiObj.Z_eval.eval()
             T_old = bonsaiObj.T_eval.eval()
 
-            W_new1 = utils.copy_support(W_new, W_old)
-            V_new1 = utils.copy_support(V_new, V_old)
-            Z_new1 = utils.copy_support(Z_new, Z_old)
-            T_new1 = utils.copy_support(T_new, T_old)
+            W_new1 = utils.copySupport(W_new, W_old)
+            V_new1 = utils.copySupport(V_new, V_old)
+            Z_new1 = utils.copySupport(Z_new, Z_old)
+            T_new1 = utils.copySupport(T_new, T_old)
 
             if counter % num_iters == 0:
                 print("ST", np.count_nonzero(W_new1), np.count_nonzero(V_new1), np.count_nonzero(Z_new1),
