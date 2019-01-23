@@ -20,11 +20,11 @@ sys.path.insert(0, '../')
 np.random.seed(42)
 tf.set_random_seed(42)
 
-class Bonsai:
-    def __init__(self, x, C, F, P, D, S, lW, lT, lV, lZ,
-                 sW, sT, sV, sZ, lr=None, W=None, T=None, V=None, Z=None):
+class FastRNNBonsai:
+    def __init__(self, C=2, F=16, P=5, D=2, S=4, lW=0.01, lT=0.01, lV=0.01, lZ=0.001,
+                 sW=1, sT=1, sV=1, sZ=0.1, lr=None, W=None, T=None, V=None, Z=None):
 
-        self.dataDimension = F + 1
+        self.dataDimension = F
         self.projectionDimension = P
         if (C > 2):
             self.numClasses = C
@@ -60,10 +60,10 @@ class Bonsai:
         self.Z_st = tf.placeholder(tf.float32, name='Z_st')
         self.T_st = tf.placeholder(tf.float32, name='T_st')
 
-        if x is None:
-            self.x = tf.placeholder("float", [None, self.dataDimension])
-        else:
-            self.x = x
+        #if x is None:
+        #    self.x = tf.placeholder("float", [None, self.dataDimension])
+        #else:
+        self.x = tf.placeholder("float", [None, seq_max_len, window])
         self.y = tf.placeholder("float", [None, self.numClasses])
         self.batch_th = tf.placeholder(tf.int64, name='batch_th')
 
@@ -122,6 +122,25 @@ class Bonsai:
 
 
     def bonsaiGraph(self, X):
+        # FastGRNN
+        X = tf.unstack(X, seq_max_len, 1)
+        # rnn_cell = tf.contrib.rnn.BasicLSTMCell(hidden_dim)
+        if (args.ct):
+            rnn_cell = FastGRNNCell(hidden_dim, gate_non_linearity=args.ggnl, update_non_linearity=args.gunl,
+                                    wRank=int(args.wr * min(window, hidden_dim)), uRank=int(args.ur * hidden_dim))
+        else:
+            rnn_cell = FastRNNCell(hidden_dim, update_non_linearity=args.unl,
+                                   wRank=int(args.wr * min(window, hidden_dim)), uRank=int(args.ur * hidden_dim))
+        # rnn_cell = tf.nn.rnn_cell.DropoutWrapper(rnn_cell,output_keep_prob=0.9)
+
+        outputs, states = tf.contrib.rnn.static_rnn(rnn_cell, X, dtype=tf.float32, sequence_length=seqlen)
+        outputs = tf.stack(outputs)
+        outputs = tf.transpose(outputs, [1, 0, 2])
+        batch_size = tf.shape(outputs)[0]
+        index = tf.range(0, batch_size) * seq_max_len + (seqlen - 1)
+        X = tf.gather(tf.reshape(outputs, [-1, hidden_dim]), index)
+
+        # Bonsai
         X = tf.reshape(X, [-1, self.dataDimension])
         X_ = tf.divide(tf.matmul(self.Z, X, transpose_b=True), self.projectionDimension)
         # X_ = tf.nn.l2_normalize(tf.matmul(self.Z, X, transpose_b=True), 0)
@@ -231,9 +250,9 @@ def getArgs():
     parser.add_argument('-hs', type=int, default=16, help='Hidden Layer Size')
     parser.add_argument('-ot', type=int, default=1, help='Adam(False)/Momentum(True)')
     parser.add_argument('-ml', type=int, default=768, help='Maximum slice length of cut taken for classification')
+    parser.add_argument('-nc', type=int, default=2, help='Number of classes')
     parser.add_argument('-fn', type=int, default=3, help='Fold Number to classify for cross validation[1/2/3/4/5]')
     parser.add_argument('-q15', type=bool, default=False, help='Represent input as Q15?')
-    parser.add_argument('')
     parser.add_argument('-out', type=str, default=sys.stdout, help='Output filename')
     parser.add_argument('-type', type=str, default='tar', help='Classification type: \'tar\' for target,' \
                                                                ' \'act\' for activity)')
@@ -260,7 +279,7 @@ def q15_to_float(arr):
     if(code): sess.run(train_op, feed_dict={X: batchx, Y:batchy, seqlen: batchz, learning_rate: lr})
     else: return(sess.run(accuracy, feed_dict={X: batchx, Y: batchy, seqlen: batchz, learning_rate: lr}))'''
 
-def dynamicRNNFeaturizer(x):
+'''def dynamicRNNFeaturizer(x):
     x = tf.unstack(x, seq_max_len, 1)
     #rnn_cell = tf.contrib.rnn.BasicLSTMCell(hidden_dim)
     if(args.ct):
@@ -275,7 +294,7 @@ def dynamicRNNFeaturizer(x):
     batch_size = tf.shape(outputs)[0]
     index = tf.range(0, batch_size) * seq_max_len + (seqlen - 1)
     outputs = tf.gather(tf.reshape(outputs, [-1, hidden_dim]), index)
-    return outputs
+    return outputs'''
 
 def process(data,labels):
     cr_data = np.zeros((data.__len__(),seq_max_len,window)); cr_seqlen = [];
@@ -286,7 +305,7 @@ def process(data,labels):
         cr_seqlen.append(num_iter)
         for j in range(num_iter):cr_data[i][j] = data[i][slice(int((st+j)*stride),int((st+j)*stride+window))];
     cr_data = cr_data[np.array(cr_seqlen) > 1]; cr_labels = cr_labels[np.array(cr_seqlen) > 1];
-    return cr_data.tolist(), cr_labels.tolist(), cr_seqlen
+    return cr_data, cr_labels, cr_seqlen
 
 
 #### Main function ####
@@ -304,11 +323,7 @@ regT = args.rT
 regW = args.rW
 regV = args.rV
 
-totalEpochs = args.epochs
-
-learningRate = args.learning_rate
-
-dataDimension = args.F
+learningRate = args.lr
 numClasses = args.nc
 
 sparZ = args.sZ
@@ -384,7 +399,8 @@ else:
 
 lr = args.lr
 
-num_epochs = 500
+#TODO: CHANGE TO 500
+num_epochs = 1000
 batch_size = args.bs
 
 hidden_dim = args.hs
@@ -394,7 +410,12 @@ train_feats, train_labels, train_seqlen = process(train_cuts_n,train_cuts_lbls)
 test_feats, test_labels, test_seqlen = process(test_cuts_n,test_cuts_lbls)
 #try_data, try_labels, try_seqlen = process(try_cuts_n,try_cuts_lbls)
 
-X = tf.placeholder("float", [None, seq_max_len, window])
+# Deconvert from one-hot if number of classes=2
+if num_classes==2:
+    train_labels = np.argmax(train_labels, axis=1)
+    test_labels = np.argmax(test_labels, axis=1)
+
+#X = tf.placeholder("float", [None, seq_max_len, window])
 #Y = tf.placeholder("float", [None, num_classes])
 
 #learning_rate = tf.placeholder("float", shape=(), name='learning_rate')
@@ -405,8 +426,10 @@ seqlen = tf.placeholder(tf.int32, [None])
 
 #features = dynamicRNNFeaturizer(X)
 # Connect Bonsai graph
-bonsaiObj = Bonsai(dynamicRNNFeaturizer(X), numClasses, hidden_dim, projectionDimension, depth, sigma,
-                   regW, regT, regV, regZ, sparW, sparT, sparV, sparZ, learningRate)
+#TODO: ENABLE THIS
+#bonsaiObj = Bonsai(dynamicRNNFeaturizer(X), numClasses, hidden_dim, projectionDimension, depth, sigma,
+#                   regW, regT, regV, regZ, sparW, sparT, sparV, sparZ, learningRate)
+fastrnnbonsaiObj = FastRNNBonsai()
 
 ###### COMMENTED FROM PRANSHU'S CODE ######
 #logits = bonsaiObj.bonsaiGraph(features)
@@ -425,11 +448,12 @@ bonsaiObj = Bonsai(dynamicRNNFeaturizer(X), numClasses, hidden_dim, projectionDi
 ###### COMMENTED FROM PRANSHU'S CODE ######
 
 #sess = tf.InteractiveSession(config=config)
-tf.reset_default_graph()
+#tf.reset_default_graph()
 sess = tf.InteractiveSession()
 sess.run(tf.group(tf.initialize_all_variables(), tf.initialize_variables(tf.local_variables())))
 
-saver = tf.train.Saver()
+#TODO: Re-enable
+#saver = tf.train.Saver()
 
 max_acc = 0; max_try_acc=0; best_iter = 0
 
@@ -437,7 +461,7 @@ num_iters = int(train_feats.__len__()/batch_size)
 total_batches = num_iters * num_epochs
 
 counter = 0
-if bonsaiObj.numClasses > 2:
+if fastrnnbonsaiObj.numClasses > 2:
     trimlevel = 15
 else:
     trimlevel = 5
@@ -448,76 +472,77 @@ for i in range(num_epochs):
     for j in range(num_iters):
 
         if ((counter == 0) or (counter == total_batches / 3) or (counter == 2 * total_batches / 3)):
-            bonsaiObj.sigmaI = 1
+            fastrnnbonsaiObj.sigmaI = 1
             iters_phase = 0
 
         elif (iters_phase % 100 == 0):
             indices = np.random.choice(train_feats.shape[0], 100)
             batch_x = train_feats[indices, :]
             batch_y = train_labels[indices, :]
-            batch_y = np.reshape(batch_y, [-1, bonsaiObj.numClasses])
-            batch_z = train_seqlen[indices, :]
+            batch_y = np.reshape(batch_y, [-1, fastrnnbonsaiObj.numClasses])
+            batch_z = [train_seqlen[j] for j in indices]
+            #batch_z = train_seqlen[indices]
 
-            _feed_dict = {X: batch_x, bonsaiObj.y: batch_y, seqlen: batch_z}
-            x_cap_eval = bonsaiObj.X_eval.eval(feed_dict=_feed_dict)
-            T_eval = bonsaiObj.T_eval.eval()
+            _feed_dict = {fastrnnbonsaiObj.x: batch_x, fastrnnbonsaiObj.y: batch_y, seqlen: batch_z}
+            x_cap_eval = fastrnnbonsaiObj.X_eval.eval(feed_dict=_feed_dict)
+            T_eval = fastrnnbonsaiObj.T_eval.eval()
             sum_tr = 0.0
-            for k in range(0, bonsaiObj.internalNodes):
+            for k in range(0, fastrnnbonsaiObj.internalNodes):
                 sum_tr = sum_tr + (np.sum(np.abs(np.dot(T_eval[k], x_cap_eval))))
 
-            if (bonsaiObj.internalNodes > 0):
-                sum_tr = sum_tr / (100 * bonsaiObj.internalNodes)
+            if (fastrnnbonsaiObj.internalNodes > 0):
+                sum_tr = sum_tr / (100 * fastrnnbonsaiObj.internalNodes)
                 sum_tr = 0.1 / sum_tr
             else:
                 sum_tr = 0.1
             sum_tr = min(1000, sum_tr * (2 ** (float(iters_phase) / (float(total_batches) / 30.0))))
 
-            bonsaiObj.sigmaI = sum_tr
+            fastrnnbonsaiObj.sigmaI = sum_tr
 
         iters_phase = iters_phase + 1
         batch_x = train_feats[j * batch_size:(j + 1) * batch_size]
         batch_y = train_labels[j * batch_size:(j + 1) * batch_size]
-        batch_y = np.reshape(batch_y, [-1, bonsaiObj.numClasses])
+        batch_y = np.reshape(batch_y, [-1, fastrnnbonsaiObj.numClasses])
         batch_z = train_seqlen[j * batch_size:(j + 1) * batch_size]
 
-        if bonsaiObj.numClasses > 2:
-            _feed_dict = {X: batch_x, bonsaiObj.y: batch_y, seqlen: batch_z, bonsaiObj.batch_th: batch_y.shape[0]}
+        if fastrnnbonsaiObj.numClasses > 2:
+            _feed_dict = {fastrnnbonsaiObj.x: batch_x, fastrnnbonsaiObj.y: batch_y, seqlen: batch_z, fastrnnbonsaiObj.batch_th: batch_y.shape[0]}
         else:
-            _feed_dict = {X: batch_x, bonsaiObj.y: batch_y, seqlen: batch_z}
+            _feed_dict = {fastrnnbonsaiObj.x: batch_x, fastrnnbonsaiObj.y: batch_y, seqlen: batch_z}
 
-        _, loss1 = sess.run([bonsaiObj.train_stepW, bonsaiObj.loss], feed_dict=_feed_dict)
-        _, loss1 = sess.run([bonsaiObj.train_stepV, bonsaiObj.loss], feed_dict=_feed_dict)
-        _, loss1 = sess.run([bonsaiObj.train_stepT, bonsaiObj.loss], feed_dict=_feed_dict)
-        _, loss1 = sess.run([bonsaiObj.train_stepZ, bonsaiObj.loss], feed_dict=_feed_dict)
-        temp = bonsaiObj.accuracy.eval(feed_dict=_feed_dict)
+        _, loss1 = sess.run([fastrnnbonsaiObj.train_stepW, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
+        _, loss1 = sess.run([fastrnnbonsaiObj.train_stepV, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
+        _, loss1 = sess.run([fastrnnbonsaiObj.train_stepT, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
+        _, loss1 = sess.run([fastrnnbonsaiObj.train_stepZ, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
+        temp = fastrnnbonsaiObj.accuracy.eval(feed_dict=_feed_dict)
         accu = temp + accu
 
         if counter >= total_batches / 3 and counter < 2 * total_batches / 3:
             if counter % trimlevel == 0:
-                W_old = bonsaiObj.W_eval.eval()
-                V_old = bonsaiObj.V_eval.eval()
-                Z_old = bonsaiObj.Z_eval.eval()
-                T_old = bonsaiObj.T_eval.eval()
+                W_old = fastrnnbonsaiObj.W_eval.eval()
+                V_old = fastrnnbonsaiObj.V_eval.eval()
+                Z_old = fastrnnbonsaiObj.Z_eval.eval()
+                T_old = fastrnnbonsaiObj.T_eval.eval()
 
-                W_new = utils.hardThreshold(W_old, bonsaiObj.sW)
-                V_new = utils.hardThreshold(V_old, bonsaiObj.sV)
-                Z_new = utils.hardThreshold(Z_old, bonsaiObj.sZ)
-                T_new = utils.hardThreshold(T_old, bonsaiObj.sT)
+                W_new = utils.hardThreshold(W_old, fastrnnbonsaiObj.sW)
+                V_new = utils.hardThreshold(V_old, fastrnnbonsaiObj.sV)
+                Z_new = utils.hardThreshold(Z_old, fastrnnbonsaiObj.sZ)
+                T_new = utils.hardThreshold(T_old, fastrnnbonsaiObj.sT)
 
                 if counter % num_iters == 0:
                     print("IHT", np.count_nonzero(W_new), np.count_nonzero(V_new), np.count_nonzero(Z_new),
                           np.count_nonzero(T_new))
 
-                fd_thrsd = {bonsaiObj.W_th: W_new, bonsaiObj.V_th: V_new, bonsaiObj.Z_th: Z_new, bonsaiObj.T_th: T_new}
-                sess.run(bonsaiObj.hard_thrsd_grp, feed_dict=fd_thrsd)
+                fd_thrsd = {fastrnnbonsaiObj.W_th: W_new, fastrnnbonsaiObj.V_th: V_new, fastrnnbonsaiObj.Z_th: Z_new, fastrnnbonsaiObj.T_th: T_new}
+                sess.run(fastrnnbonsaiObj.hard_thrsd_grp, feed_dict=fd_thrsd)
 
                 iht_done = 1
             elif ((iht_done == 1 and counter >= (total_batches / 3) and (
                 counter < 2 * total_batches / 3) and counter % trimlevel != 0) or (counter >= 2 * total_batches / 3)):
-                W_old = bonsaiObj.W_eval.eval()
-                V_old = bonsaiObj.V_eval.eval()
-                Z_old = bonsaiObj.Z_eval.eval()
-                T_old = bonsaiObj.T_eval.eval()
+                W_old = fastrnnbonsaiObj.W_eval.eval()
+                V_old = fastrnnbonsaiObj.V_eval.eval()
+                Z_old = fastrnnbonsaiObj.Z_eval.eval()
+                T_old = fastrnnbonsaiObj.T_eval.eval()
 
                 W_new1 = utils.copySupport(W_new, W_old)
                 V_new1 = utils.copySupport(V_new, V_old)
@@ -530,14 +555,14 @@ for i in range(num_epochs):
                     print(8.0 * (
                     np.count_nonzero(W_new) + np.count_nonzero(V_new) + np.count_nonzero(Z_new) + np.count_nonzero(
                         T_new)) / 1024.0)
-                fd_st = {bonsaiObj.W_st: W_new1, bonsaiObj.V_st: V_new1, bonsaiObj.Z_st: Z_new1, bonsaiObj.T_st: T_new1}
-                sess.run(bonsaiObj.sparse_retrain_grp, feed_dict=fd_st)
+                fd_st = {fastrnnbonsaiObj.W_st: W_new1, fastrnnbonsaiObj.V_st: V_new1, fastrnnbonsaiObj.Z_st: Z_new1, fastrnnbonsaiObj.T_st: T_new1}
+                sess.run(fastrnnbonsaiObj.sparse_retrain_grp, feed_dict=fd_st)
         elif ((iht_done == 1 and counter >= (total_batches / 3) and (
             counter < 2 * total_batches / 3) and counter % trimlevel != 0) or (counter >= 2 * total_batches / 3)):
-            W_old = bonsaiObj.W_eval.eval()
-            V_old = bonsaiObj.V_eval.eval()
-            Z_old = bonsaiObj.Z_eval.eval()
-            T_old = bonsaiObj.T_eval.eval()
+            W_old = fastrnnbonsaiObj.W_eval.eval()
+            V_old = fastrnnbonsaiObj.V_eval.eval()
+            Z_old = fastrnnbonsaiObj.Z_eval.eval()
+            T_old = fastrnnbonsaiObj.T_eval.eval()
 
             W_new1 = utils.copySupport(W_new, W_old)
             V_new1 = utils.copySupport(V_new, V_old)
@@ -550,40 +575,42 @@ for i in range(num_epochs):
                 print(8.0 * (
                 np.count_nonzero(W_new) + np.count_nonzero(V_new) + np.count_nonzero(Z_new) + np.count_nonzero(
                     T_new)) / 1024.0)
-            fd_st = {bonsaiObj.W_st: W_new1, bonsaiObj.V_st: V_new1, bonsaiObj.Z_st: Z_new1, bonsaiObj.T_st: T_new1}
-            sess.run(bonsaiObj.sparse_retrain_grp, feed_dict=fd_st)
+            fd_st = {fastrnnbonsaiObj.W_st: W_new1, fastrnnbonsaiObj.V_st: V_new1, fastrnnbonsaiObj.Z_st: Z_new1, fastrnnbonsaiObj.T_st: T_new1}
+            sess.run(fastrnnbonsaiObj.sparse_retrain_grp, feed_dict=fd_st)
 
         counter = counter + 1
 
     print("Train accuracy " + str(accu / num_iters))
+
+    # Reshape test labels
+    test_labels = np.reshape(test_labels, [-1, fastrnnbonsaiObj.numClasses])
     #bonsaiObj.analyse()
-    if bonsaiObj.numClasses > 2:
-        _feed_dict = {X: test_feats, bonsaiObj.y: test_labels, seqlen: test_seqlen, bonsaiObj.batch_th: test_labels.shape[0]}
+    if fastrnnbonsaiObj.numClasses > 2:
+        _feed_dict = {fastrnnbonsaiObj.x: test_feats, fastrnnbonsaiObj.y: test_labels, seqlen: test_seqlen, fastrnnbonsaiObj.batch_th: test_labels.shape[0]}
     else:
-        _feed_dict = {X: test_feats, bonsaiObj.y: test_labels, seqlen: test_seqlen}
+        _feed_dict = {fastrnnbonsaiObj.x: test_feats, fastrnnbonsaiObj.y: test_labels, seqlen: test_seqlen}
 
-    old = bonsaiObj.sigmaI
-    bonsaiObj.sigmaI = 1e9
+    old = fastrnnbonsaiObj.sigmaI
+    fastrnnbonsaiObj.sigmaI = 1e9
 
-    test_acc = bonsaiObj.accuracy.eval(feed_dict=_feed_dict)
+    test_acc = fastrnnbonsaiObj.accuracy.eval(feed_dict=_feed_dict)
     print("Test accuracy %g" % test_acc)
-    #if bonsaiObj.numClasses > 2:
-    #    _feed_dict = {bonsaiObj.x: train_feats, bonsaiObj.y: train_labels, bonsaiObj.batch_th: train_labels.shape[0]}
-    #else:
-    #    _feed_dict = {bonsaiObj.x: train_feats, bonsaiObj.y: train_labels}
-    if bonsaiObj.numClasses > 2:
-        _feed_dict = {X: train_feats, bonsaiObj.y: train_labels, seqlen: train_seqlen, bonsaiObj.batch_th: train_labels.shape[0]}
-    else:
-        _feed_dict = {X: train_feats, bonsaiObj.y: train_labels, seqlen: train_seqlen}
 
-    loss_new = bonsaiObj.loss.eval(feed_dict=_feed_dict)
-    reg_loss_new = bonsaiObj.reg_loss.eval(feed_dict=_feed_dict)
+    # Reshape train labels
+    train_labels = np.reshape(train_labels, [-1, fastrnnbonsaiObj.numClasses])
+    if fastrnnbonsaiObj.numClasses > 2:
+        _feed_dict = {fastrnnbonsaiObj.x: train_feats, fastrnnbonsaiObj.y: train_labels, seqlen: train_seqlen, fastrnnbonsaiObj.batch_th: train_labels.shape[0]}
+    else:
+        _feed_dict = {fastrnnbonsaiObj.x: train_feats, fastrnnbonsaiObj.y: train_labels, seqlen: train_seqlen}
+
+    loss_new = fastrnnbonsaiObj.loss.eval(feed_dict=_feed_dict)
+    reg_loss_new = fastrnnbonsaiObj.reg_loss.eval(feed_dict=_feed_dict)
     print("Loss %g" % loss_new)
     print("Reg Loss %g" % reg_loss_new)
-    train_acc = bonsaiObj.accuracy.eval(feed_dict=_feed_dict)
+    train_acc = fastrnnbonsaiObj.accuracy.eval(feed_dict=_feed_dict)
     print("Train accuracy %g" % train_acc)
 
-    bonsaiObj.sigmaI = old
+    fastrnnbonsaiObj.sigmaI = old
     print(old)
 
     print("\n Epoch Number: " + str(i + 1))
