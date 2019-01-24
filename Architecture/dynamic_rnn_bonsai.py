@@ -322,11 +322,11 @@ regW = args.rW
 regV = args.rV
 
 learningRate = args.lr
-numClasses = args.nc
+num_classes = args.nc
 
 sparZ = args.sZ
 
-if numClasses > 2:
+if num_classes > 2:
     sparW = 0.2
     sparV = 0.2
     sparT = 0.2
@@ -343,9 +343,6 @@ if args.sT is not None:
     sparT = args.sT
 
 useMCHLoss = True
-
-if numClasses == 2:
-    numClasses = 1
 
 '''if args.bat=='pbs':
     fileloc = os.path.abspath('/fs/project/PAS1090/radar/Austere/Bora_New_Detector/')
@@ -401,7 +398,6 @@ num_epochs = 500
 batch_size = args.bs
 
 hidden_dim = args.hs
-num_classes = 2
 
 train_feats, train_labels, train_seqlen = process(train_cuts_n,train_cuts_lbls)
 test_feats, test_labels, test_seqlen = process(test_cuts_n,test_cuts_lbls)
@@ -423,8 +419,8 @@ seqlen = tf.placeholder(tf.int32, [None])
 
 #features = dynamicRNNFeaturizer(X)
 # Connect Bonsai graph
-fastrnnbonsaiObj = FastRNNBonsai(numClasses, hidden_dim, projectionDimension, depth, sigma,
-                   regW, regT, regV, regZ, sparW, sparT, sparV, sparZ, learningRate)
+fastrnnbonsaiObj = FastRNNBonsai(num_classes, hidden_dim, projectionDimension, depth, sigma,
+                                 regW, regT, regV, regZ, sparW, sparT, sparV, sparZ, learningRate)
 
 ###### COMMENTED FROM PRANSHU'S CODE ######
 #logits = bonsaiObj.bonsaiGraph(features)
