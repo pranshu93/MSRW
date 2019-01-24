@@ -21,8 +21,8 @@ np.random.seed(42)
 tf.set_random_seed(42)
 
 class FastRNNBonsai:
-    def __init__(self, C=2, F=16, P=5, D=2, S=4, lW=0.01, lT=0.01, lV=0.01, lZ=0.001,
-                 sW=1, sT=1, sV=1, sZ=0.1, lr=None, W=None, T=None, V=None, Z=None):
+    def __init__(self, C, F, P, D, S, lW, lT, lV, lZ,
+                 sW, sT, sV, sZ, lr=None, W=None, T=None, V=None, Z=None):
 
         self.dataDimension = F
         self.projectionDimension = P
@@ -396,7 +396,7 @@ else:
 lr = args.lr
 
 #TODO: CHANGE TO 500
-num_epochs = 1000
+num_epochs = 500
 batch_size = args.bs
 
 hidden_dim = args.hs
@@ -423,9 +423,8 @@ seqlen = tf.placeholder(tf.int32, [None])
 #features = dynamicRNNFeaturizer(X)
 # Connect Bonsai graph
 #TODO: ENABLE THIS
-#bonsaiObj = Bonsai(dynamicRNNFeaturizer(X), numClasses, hidden_dim, projectionDimension, depth, sigma,
-#                   regW, regT, regV, regZ, sparW, sparT, sparV, sparZ, learningRate)
-fastrnnbonsaiObj = FastRNNBonsai()
+fastrnnbonsaiObj = FastRNNBonsai(numClasses, hidden_dim, projectionDimension, depth, sigma,
+                   regW, regT, regV, regZ, sparW, sparT, sparV, sparZ, learningRate)
 
 ###### COMMENTED FROM PRANSHU'S CODE ######
 #logits = bonsaiObj.bonsaiGraph(features)
