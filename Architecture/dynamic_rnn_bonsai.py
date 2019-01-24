@@ -396,7 +396,6 @@ else:
 
 lr = args.lr
 
-#TODO: CHANGE TO 500
 num_epochs = 500
 batch_size = args.bs
 
@@ -423,7 +422,6 @@ seqlen = tf.placeholder(tf.int32, [None])
 
 #features = dynamicRNNFeaturizer(X)
 # Connect Bonsai graph
-#TODO: ENABLE THIS
 fastrnnbonsaiObj = FastRNNBonsai(numClasses, hidden_dim, projectionDimension, depth, sigma,
                    regW, regT, regV, regZ, sparW, sparT, sparV, sparZ, learningRate)
 
