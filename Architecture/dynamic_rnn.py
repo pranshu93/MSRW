@@ -51,7 +51,9 @@ def main():
     
     def forward_iter(data, labels, data_seqlen, index, code):
         batchx = data[index];  batchy = labels[index]; batchz = data_seqlen[index]
-        if(code): sess.run(train_op, feed_dict={X: batchx, Y:batchy, seqlen: batchz, learning_rate: lr})
+        if(code):
+            _, cur_loss=sess.run([train_op,loss_op], feed_dict={X: batchx, Y:batchy, seqlen: batchz, learning_rate: lr})
+            print('Cur loss: ', cur_loss)
         else: return(sess.run(accuracy, feed_dict={X: batchx, Y: batchy, seqlen: batchz, learning_rate: lr}))
 
     def dynamicRNN(x):
@@ -183,6 +185,7 @@ def main():
     max_acc = 0; max_try_acc=0; best_iter = 0;
     ''''''
     for i in range(num_epochs):
+        print('Epoch num: ', i)
         num_iter = int(train_data.__len__()/batch_size)
         [forward_iter(train_data,train_labels,train_seqlen,slice(j*batch_size,(j+1)*batch_size),True) for j in range(num_iter)]
         forward_iter(train_data,train_labels,train_seqlen,slice(num_iter*batch_size,train_data.__len__()),True)
