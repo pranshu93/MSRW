@@ -209,8 +209,8 @@ class FastRNNBonsai:
             correct_prediction = tf.ceil(tf.tanh(correct_prediction))
             self.accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-    '''def analyse(self):
-        _feed_dict = {self.x: train_feats, self.y: train_labels}
+    def analyse(self):
+        _feed_dict = {self.x: train_feats, self.y: train_labels, seqlen: train_seqlen}
         x_cap_eval = self.X_eval.eval(feed_dict=_feed_dict)
         tt1 = self.T_eval.eval()
         prob = []
@@ -234,7 +234,7 @@ class FastRNNBonsai:
                         j = 2 * j + 2
                         nodes[j - self.internalNodes] = nodes[j - self.internalNodes] + 1
         for i in range(0, self.internalNodes + 1):
-            print(i, nodes[i])'''
+            print(i, nodes[i])
 
 def getArgs():
     parser = argparse.ArgumentParser(description='HyperParameters for Dynamic RNN Algorithm')
@@ -274,11 +274,6 @@ def getArgs():
 
 def q15_to_float(arr):
     return arr*100000.0/32768.0
-
-'''def forward_iter(data, labels, data_seqlen, index, code):
-    batchx = data[index];  batchy = labels[index]; batchz = data_seqlen[index]
-    if(code): sess.run(train_op, feed_dict={X: batchx, Y:batchy, seqlen: batchz, learning_rate: lr})
-    else: return(sess.run(accuracy, feed_dict={X: batchx, Y: batchy, seqlen: batchz, learning_rate: lr}))'''
 
 '''def dynamicRNNFeaturizer(x):
     x = tf.unstack(x, seq_max_len, 1)
@@ -515,6 +510,7 @@ for i in range(num_epochs):
         _, loss1 = sess.run([fastrnnbonsaiObj.train_stepV, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
         _, loss1 = sess.run([fastrnnbonsaiObj.train_stepT, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
         _, loss1 = sess.run([fastrnnbonsaiObj.train_stepZ, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
+        print("\tBatch loss %g" % loss1)
         temp = fastrnnbonsaiObj.accuracy.eval(feed_dict=_feed_dict)
         accu = temp + accu
 
@@ -583,9 +579,11 @@ for i in range(num_epochs):
 
     print("Train accuracy " + str(accu / num_iters))
 
+    # Reshape train labels
+    train_labels = np.reshape(train_labels, [-1, fastrnnbonsaiObj.numClasses])
     # Reshape test labels
     test_labels = np.reshape(test_labels, [-1, fastrnnbonsaiObj.numClasses])
-    #bonsaiObj.analyse()
+    fastrnnbonsaiObj.analyse()
     if fastrnnbonsaiObj.numClasses > 2:
         _feed_dict = {fastrnnbonsaiObj.x: test_feats, fastrnnbonsaiObj.y: test_labels, seqlen: test_seqlen, fastrnnbonsaiObj.batch_th: test_labels.shape[0]}
     else:
@@ -597,8 +595,7 @@ for i in range(num_epochs):
     test_acc = fastrnnbonsaiObj.accuracy.eval(feed_dict=_feed_dict)
     print("Test accuracy %g" % test_acc)
 
-    # Reshape train labels
-    train_labels = np.reshape(train_labels, [-1, fastrnnbonsaiObj.numClasses])
+
     if fastrnnbonsaiObj.numClasses > 2:
         _feed_dict = {fastrnnbonsaiObj.x: train_feats, fastrnnbonsaiObj.y: train_labels, seqlen: train_seqlen, fastrnnbonsaiObj.batch_th: train_labels.shape[0]}
     else:
