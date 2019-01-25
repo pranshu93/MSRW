@@ -23,7 +23,7 @@ tf.set_random_seed(42)
 
 class FastRNNBonsai:
     def __init__(self, C, F, P, D, S, lW, lT, lV, lZ,
-                 sW, sT, sV, sZ, W=None, T=None, V=None, Z=None):
+                 sW, sT, sV, sZ, lr=None, W=None, T=None, V=None, Z=None):
 
         self.dataDimension = F
         self.projectionDimension = P
@@ -69,6 +69,10 @@ class FastRNNBonsai:
         self.batch_th = tf.placeholder(tf.int64, name='batch_th')
 
         self.sigmaI = 1.0
+        if lr is not None:
+            self.learning_rate = lr
+        else:
+            self.learning_rate = 0.01
 
         self.hardThrsd()
         self.sparseTraining()
@@ -328,6 +332,7 @@ regT = args.rT
 regW = args.rW
 regV = args.rV
 
+learningRate = args.lr
 num_classes = args.nc
 
 sparZ = args.sZ
@@ -350,11 +355,10 @@ if args.sT is not None:
 
 useMCHLoss = True
 
-learning_rate = tf.placeholder("float", shape=(), name='learning_rate')
 if(args.ot):
-    optimizer = tf.train.MomentumOptimizer(learning_rate=learning_rate,momentum=0.9,use_nesterov=True)
+    optimizer = tf.train.MomentumOptimizer(learning_rate=learningRate,momentum=0.9,use_nesterov=True)
 else:
-    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
+    optimizer = tf.train.AdamOptimizer(learning_rate=learningRate)
 
 '''if args.bat=='pbs':
     fileloc = os.path.abspath('/fs/project/PAS1090/radar/Austere/Bora_New_Detector/')
@@ -421,6 +425,7 @@ if num_classes==2:
 #X = tf.placeholder("float", [None, seq_max_len, window])
 #Y = tf.placeholder("float", [None, num_classes])
 
+#learning_rate = tf.placeholder("float", shape=(), name='learning_rate')
 tf.set_random_seed(42)
 np.random.seed(42)
 
@@ -429,7 +434,7 @@ seqlen = tf.placeholder(tf.int32, [None])
 #features = dynamicRNNFeaturizer(X)
 # Connect Bonsai graph
 fastrnnbonsaiObj = FastRNNBonsai(num_classes, hidden_dim, projectionDimension, depth, sigma,
-                                 regW, regT, regV, regZ, sparW, sparT, sparV, sparZ)
+                                 regW, regT, regV, regZ, sparW, sparT, sparV, sparZ, learningRate)
 
 sess = tf.InteractiveSession()
 sess.run(tf.group(tf.initialize_all_variables(), tf.initialize_variables(tf.local_variables())))
@@ -450,11 +455,6 @@ else:
 iht_done = 0
 
 for i in range(num_epochs):
-    if i==0:
-        cur_learningRate = args.lr
-    elif i % 20 == 0:
-        cur_learningRate = cur_learningRate / 10
-
     accu = 0.0
     for j in range(num_iters):
 
@@ -493,16 +493,16 @@ for i in range(num_epochs):
         batch_z = train_seqlen[j * batch_size:(j + 1) * batch_size]
 
         if fastrnnbonsaiObj.numClasses > 2:
-            _feed_dict = {fastrnnbonsaiObj.x: batch_x, fastrnnbonsaiObj.y: batch_y, seqlen: batch_z, fastrnnbonsaiObj.batch_th: batch_y.shape[0], learning_rate: cur_learningRate}
+            _feed_dict = {fastrnnbonsaiObj.x: batch_x, fastrnnbonsaiObj.y: batch_y, seqlen: batch_z, fastrnnbonsaiObj.batch_th: batch_y.shape[0]}
         else:
-            _feed_dict = {fastrnnbonsaiObj.x: batch_x, fastrnnbonsaiObj.y: batch_y, seqlen: batch_z, learning_rate: cur_learningRate}
+            _feed_dict = {fastrnnbonsaiObj.x: batch_x, fastrnnbonsaiObj.y: batch_y, seqlen: batch_z}
 
         #_, loss1 = sess.run([fastrnnbonsaiObj.train_stepW, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
         #_, loss1 = sess.run([fastrnnbonsaiObj.train_stepV, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
         #_, loss1 = sess.run([fastrnnbonsaiObj.train_stepT, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
         #_, loss1 = sess.run([fastrnnbonsaiObj.train_stepZ, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
         _, loss1 = sess.run([fastrnnbonsaiObj.train_step, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
-        #print("\tBatch loss %g" % loss1)
+        print("\tBatch loss %g" % loss1)
         temp = fastrnnbonsaiObj.accuracy.eval(feed_dict=_feed_dict)
         accu = temp + accu
 
@@ -586,8 +586,7 @@ for i in range(num_epochs):
 
     test_acc = fastrnnbonsaiObj.accuracy.eval(feed_dict=_feed_dict)
     print("Test accuracy %g" % test_acc)
-    if test_acc > max_acc:
-        max_acc = test_acc
+
 
     if fastrnnbonsaiObj.numClasses > 2:
         _feed_dict = {fastrnnbonsaiObj.x: train_feats, fastrnnbonsaiObj.y: train_labels, seqlen: train_seqlen, fastrnnbonsaiObj.batch_th: train_labels.shape[0]}
@@ -625,7 +624,7 @@ for i in range(num_epochs):
     #print(i,tr_acc,acc,try_acc)
 print(max_acc,max_try_acc)
 '''
-print('Best accuracy:', max_acc)
+
 # Create result string
 results_list = [args.ggnl, args.gunl, args.ur, args.wr, args.w, args.sp, args.lr, args.bs, args.hs, args.ot,
        args.ml, args.fn, max_acc]
