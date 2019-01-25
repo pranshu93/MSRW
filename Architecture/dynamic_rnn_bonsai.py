@@ -404,7 +404,7 @@ else:
     [test_cuts_n.append(((np.array(test_cuts[i]) - mean) / std).tolist()) for i in range(test_cuts.shape[0])]
 #[try_cuts_n.append(((np.array(try_cuts[i])-mean)/std).tolist()) for i in range(try_cuts.shape[0])]
 
-num_epochs = 500
+num_epochs = 1000
 batch_size = args.bs
 
 hidden_dim = args.hs
@@ -452,7 +452,7 @@ iht_done = 0
 for i in range(num_epochs):
     if i==0:
         cur_learningRate = args.lr
-    elif i % 20 == 0:
+    elif i % (num_epochs/5) == 0:
         cur_learningRate = cur_learningRate / 10
 
     accu = 0.0
