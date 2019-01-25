@@ -127,7 +127,9 @@ def main():
     max_length = args.ml#np.percentile(cut_lengths,0)
     #print(max_length)
 
-    seq_max_len = int(np.floor(float(max_length-window)/stride)+1)
+    #seq_max_len = int(np.floor(float(max_length-window)/stride)+1)
+    # TODO: Undo hack to improve accuracy
+    seq_max_len = int(np.floor(float(max_length - window) / stride))
 
     all_cuts = []; [all_cuts.extend(train_cuts[i]) for i in range(train_cuts.shape[0])];
     mean = np.mean(np.array(all_cuts)); std = np.std(np.array(all_cuts));
