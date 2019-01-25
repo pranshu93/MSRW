@@ -199,7 +199,11 @@ class FastRNNBonsai:
         #self.train_stepV = (tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss, var_list=[self.V]))
         #self.train_stepT = (tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss, var_list=[self.T]))
         #self.train_stepZ = (tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss, var_list=[self.Z]))
-        self.train_step = optimizer.minimize(self.loss)
+        #self.train_step = optimizer.minimize(self.loss)
+        # Apply gradient clipping
+        gvs = optimizer.compute_gradients(self.loss)
+        capped_gvs = [(tf.clip_by_value(grad, -1., 1.), var) for grad, var in gvs]
+        self.train_step = optimizer.apply_gradients(capped_gvs)
 
     def accuracyGraph(self):
         if (self.numClasses > 2):
@@ -345,6 +349,11 @@ if args.sT is not None:
 
 useMCHLoss = True
 
+if(args.ot):
+    optimizer = tf.train.MomentumOptimizer(learning_rate=learningRate,momentum=0.9,use_nesterov=True)
+else:
+    optimizer = tf.train.AdamOptimizer(learning_rate=learningRate)
+
 '''if args.bat=='pbs':
     fileloc = os.path.abspath('/fs/project/PAS1090/radar/Austere/Bora_New_Detector/')
 elif args.bat=='slurm':
@@ -421,23 +430,6 @@ seqlen = tf.placeholder(tf.int32, [None])
 fastrnnbonsaiObj = FastRNNBonsai(num_classes, hidden_dim, projectionDimension, depth, sigma,
                                  regW, regT, regV, regZ, sparW, sparT, sparV, sparZ, learningRate)
 
-###### COMMENTED FROM PRANSHU'S CODE ######
-#logits = bonsaiObj.bonsaiGraph(features)
-#prediction = tf.nn.softmax(logits)
-#pred_labels = tf.argmax(prediction, 1)
-if(args.ot):
-    optimizer = tf.train.MomentumOptimizer(learning_rate=learningRate,momentum=0.9,use_nesterov=True)
-else:
-    optimizer = tf.train.AdamOptimizer(learning_rate=learningRate)
-#loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=Y))
-#train_op = optimizer.minimize(loss_op)
-
-#correct_pred = tf.equal(pred_labels, tf.argmax(Y,1))
-#accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
-###### COMMENTED FROM PRANSHU'S CODE ######
-
-#sess = tf.InteractiveSession(config=config)
-#tf.reset_default_graph()
 sess = tf.InteractiveSession()
 sess.run(tf.group(tf.initialize_all_variables(), tf.initialize_variables(tf.local_variables())))
 
