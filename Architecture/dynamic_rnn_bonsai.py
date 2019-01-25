@@ -126,12 +126,19 @@ class FastRNNBonsai:
         # Fast(G)RNN
         X = tf.unstack(X, seq_max_len, 1)
         # rnn_cell = tf.contrib.rnn.BasicLSTMCell(hidden_dim)
+        if args.wr is None or args.ur is None:
+            wRank = None
+            uRank = None
+        else:
+            wRank = int(args.wr * min(window, hidden_dim))
+            uRank = int(args.ur * hidden_dim)
+
         if (args.ct):
             rnn_cell = FastGRNNCell(hidden_dim, gate_non_linearity=args.ggnl, update_non_linearity=args.gunl,
-                                    wRank=int(args.wr * min(window, hidden_dim)), uRank=int(args.ur * hidden_dim))
+                                    wRank=wRank, uRank=uRank)
         else:
             rnn_cell = FastRNNCell(hidden_dim, update_non_linearity=args.unl,
-                                   wRank=int(args.wr * min(window, hidden_dim)), uRank=int(args.ur * hidden_dim))
+                                   wRank=wRank, uRank=uRank)
         # rnn_cell = tf.nn.rnn_cell.DropoutWrapper(rnn_cell,output_keep_prob=0.9)
 
         outputs, states = tf.contrib.rnn.static_rnn(rnn_cell, X, dtype=tf.float32, sequence_length=seqlen)
@@ -249,8 +256,8 @@ def getArgs():
     parser.add_argument('-unl', type=str, default="tanh" , help='tanh/sigmoid/relu/quantSigm/quantTanh')
     parser.add_argument('-gunl', type=str, default="tanh" , help='tanh/sigmoid/relu/quantSigm/quantTanh')
     parser.add_argument('-ggnl', type=str, default="sigmoid" , help='tanh/sigmoid/relu/quantSigm/quantTanh')
-    parser.add_argument('-ur', type=float, default=1, help='Rank of U matrix')
-    parser.add_argument('-wr', type=float, default=1, help='Rank of W matrix')
+    parser.add_argument('-ur', type=float, default=None, help='Rank of U matrix')
+    parser.add_argument('-wr', type=float, default=None, help='Rank of W matrix')
     parser.add_argument('-w', type=int, default=32, help='Window Length')
     parser.add_argument('-sp', type=float, default=0.5, help='Stride as % of Window Length(0.25/0.5/0.75/1)')
     parser.add_argument('-lr', type=float, default=0.01, help='Learning Rate of Optimisation')
