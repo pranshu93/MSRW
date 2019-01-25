@@ -195,8 +195,7 @@ class FastRNNBonsai:
                                    self.lV * tf.square(tf.norm(self.V)) + self.lT * tf.square(tf.norm(self.T)))
             self.loss = self.margin_loss + self.reg_loss
         else:
-            #self.margin_loss = tf.reduce_mean(tf.nn.relu(1.0 - (2 * self.y - 1) * tf.transpose(self.score)))
-            self.margin_loss = utils.crossEntropyLoss(tf.transpose(self.score), self.y)
+            self.margin_loss = tf.reduce_mean(tf.nn.relu(1.0 - (2 * self.y - 1) * tf.transpose(self.score)))
             self.reg_loss = 0.5 * (self.lZ * tf.square(tf.norm(self.Z)) + self.lW * tf.square(tf.norm(self.W)) +
                                    self.lV * tf.square(tf.norm(self.V)) + self.lT * tf.square(tf.norm(self.T)))
             self.loss = self.margin_loss + self.reg_loss
