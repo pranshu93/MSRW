@@ -195,10 +195,11 @@ class FastRNNBonsai:
             self.loss = self.margin_loss + self.reg_loss
 
     def trainGraph(self):
-        self.train_stepW = (tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss, var_list=[self.W]))
-        self.train_stepV = (tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss, var_list=[self.V]))
-        self.train_stepT = (tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss, var_list=[self.T]))
-        self.train_stepZ = (tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss, var_list=[self.Z]))
+        #self.train_stepW = (tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss, var_list=[self.W]))
+        #self.train_stepV = (tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss, var_list=[self.V]))
+        #self.train_stepT = (tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss, var_list=[self.T]))
+        #self.train_stepZ = (tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss, var_list=[self.Z]))
+        self.train_step = optimizer.minimize(self.loss)
 
     def accuracyGraph(self):
         if (self.numClasses > 2):
@@ -392,8 +393,6 @@ else:
     [test_cuts_n.append(((np.array(test_cuts[i]) - mean) / std).tolist()) for i in range(test_cuts.shape[0])]
 #[try_cuts_n.append(((np.array(try_cuts[i])-mean)/std).tolist()) for i in range(try_cuts.shape[0])]
 
-lr = args.lr
-
 num_epochs = 500
 batch_size = args.bs
 
@@ -426,12 +425,11 @@ fastrnnbonsaiObj = FastRNNBonsai(num_classes, hidden_dim, projectionDimension, d
 #logits = bonsaiObj.bonsaiGraph(features)
 #prediction = tf.nn.softmax(logits)
 #pred_labels = tf.argmax(prediction, 1)
-
+if(args.ot):
+    optimizer = tf.train.MomentumOptimizer(learning_rate=learningRate,momentum=0.9,use_nesterov=True)
+else:
+    optimizer = tf.train.AdamOptimizer(learning_rate=learningRate)
 #loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=Y))
-#if(args.ot):
-#    optimizer = tf.train.MomentumOptimizer(learning_rate=learning_rate,momentum=0.9,use_nesterov=True)
-#else:
-#    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
 #train_op = optimizer.minimize(loss_op)
 
 #correct_pred = tf.equal(pred_labels, tf.argmax(Y,1))
@@ -501,10 +499,11 @@ for i in range(num_epochs):
         else:
             _feed_dict = {fastrnnbonsaiObj.x: batch_x, fastrnnbonsaiObj.y: batch_y, seqlen: batch_z}
 
-        _, loss1 = sess.run([fastrnnbonsaiObj.train_stepW, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
-        _, loss1 = sess.run([fastrnnbonsaiObj.train_stepV, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
-        _, loss1 = sess.run([fastrnnbonsaiObj.train_stepT, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
-        _, loss1 = sess.run([fastrnnbonsaiObj.train_stepZ, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
+        #_, loss1 = sess.run([fastrnnbonsaiObj.train_stepW, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
+        #_, loss1 = sess.run([fastrnnbonsaiObj.train_stepV, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
+        #_, loss1 = sess.run([fastrnnbonsaiObj.train_stepT, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
+        #_, loss1 = sess.run([fastrnnbonsaiObj.train_stepZ, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
+        _, loss1 = sess.run([fastrnnbonsaiObj.train_step, fastrnnbonsaiObj.loss], feed_dict=_feed_dict)
         print("\tBatch loss %g" % loss1)
         temp = fastrnnbonsaiObj.accuracy.eval(feed_dict=_feed_dict)
         accu = temp + accu
