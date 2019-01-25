@@ -404,7 +404,7 @@ else:
     [test_cuts_n.append(((np.array(test_cuts[i]) - mean) / std).tolist()) for i in range(test_cuts.shape[0])]
 #[try_cuts_n.append(((np.array(try_cuts[i])-mean)/std).tolist()) for i in range(try_cuts.shape[0])]
 
-num_epochs = 1000
+num_epochs = 500
 batch_size = args.bs
 
 hidden_dim = args.hs
