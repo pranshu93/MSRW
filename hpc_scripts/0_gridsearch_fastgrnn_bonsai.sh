@@ -74,7 +74,7 @@ do
                             do
                                 for r in `seq 1 5`;
                                 do
-                                    echo python3 ../Architecture/dynamic_rnn_bonsai.py -base $1 -ct 1 -w 32 -sp 0.5 -lr 0.005 - bs 128 -hs 16 -ot 1 -ml 768 -P $i -dep $j -sig $k -rW $l -rV $m -rT $n -rZ $o -sZ $p -out '$outname'
+                                    echo python3 ../Architecture/dynamic_rnn_bonsai.py -base $1 -ct 1 -w 32 -sp 0.5 -lr 0.005 - bs 128 -hs 16 -ot 1 -ml 768 -fn $r -P $i -dep $j -sig $k -rW $l -rV $m -rT $n -rZ $o -sZ $p -out '$outname'
                                 done
                             done
                         done
