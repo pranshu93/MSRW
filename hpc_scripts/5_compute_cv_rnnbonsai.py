@@ -34,7 +34,7 @@ idx = df_cv['Acc'].idxmax()
 
 print('Best CV accuracy:', str(max))
 print('Corresponding params')
-print("\t".join([str(i) for i in ['ggnl', 'gunl', 'ur', 'wr', 'w', 'sp', 'lr', 'bs', 'hs', 'ot', 'ml', 'fn',
+print("\t".join([str(i) for i in ['ggnl', 'gunl', 'ur', 'wr', 'w', 'sp', 'lr', 'bs', 'hs', 'ot', 'ml',
                           'S', 'D', 'P', 'rZ', 'rT', 'rW', 'rV', 'sZ',
                           'sW', 'sV', 'sT', 'By']]))
 print("\t".join([str(i) for i in idx]))
