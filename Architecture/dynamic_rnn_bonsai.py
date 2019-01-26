@@ -605,6 +605,8 @@ max_length = args.ml#np.percentile(cut_lengths,0)
 #print(max_length)
 
 seq_max_len = int(np.floor(float(max_length-window)/stride)+1)
+# TODO: Undo hack to improve accuracy
+# seq_max_len = int(np.floor(float(max_length - window) / stride))
 
 all_cuts = []; [all_cuts.extend(train_cuts[i]) for i in range(train_cuts.shape[0])];
 mean = np.mean(np.array(all_cuts)); std = np.std(np.array(all_cuts));
@@ -674,7 +676,7 @@ iht_done = 0
 cur_learningRate = args.lr
 
 for i in range(num_epochs):
-    #if i % (num_epochs/10) == 0 and i > 0:
+    #if i % (num_epochs/5) == 0 and i > 0:
     #    cur_learningRate = cur_learningRate / 10
 
     accu = 0.0
@@ -728,7 +730,7 @@ for i in range(num_epochs):
         temp = fastrnnbonsaiObj.accuracy.eval(feed_dict=_feed_dict)
         accu = temp + accu
 
-        '''if counter >= total_batches / 3 and counter < 2 * total_batches / 3:
+        if counter >= total_batches / 3 and counter < 2 * total_batches / 3:
             if counter % trimlevel == 0:
                 W_old = fastrnnbonsaiObj.W_eval.eval()
                 V_old = fastrnnbonsaiObj.V_eval.eval()
@@ -793,7 +795,7 @@ for i in range(num_epochs):
                 np.count_nonzero(W_new) + np.count_nonzero(V_new) + np.count_nonzero(Z_new) + np.count_nonzero(
                     T_new)) / 1024.0)
             fd_st = {fastrnnbonsaiObj.W_st: W_new1, fastrnnbonsaiObj.V_st: V_new1, fastrnnbonsaiObj.Z_st: Z_new1, fastrnnbonsaiObj.T_st: T_new1}
-            sess.run(fastrnnbonsaiObj.sparse_retrain_grp, feed_dict=fd_st)'''
+            sess.run(fastrnnbonsaiObj.sparse_retrain_grp, feed_dict=fd_st)
 
         counter = counter + 1
 
