@@ -1,0 +1,19 @@
+from __future__ import print_function
+import numpy as np
+import tensorflow as tf
+import random
+import os
+import argparse
+from math import sqrt
+from tensorflow.contrib import rnn
+from rnn import FastRNNCell,FastGRNNCell
+import sys
+modelloc = os.path.abspath('../Models/')
+#sess = tf.InteractiveSession()
+#sess.run(tf.group(tf.initialize_all_variables(), tf.initialize_variables(tf.local_variables()))) 
+#saver = tf.train.Saver()
+#saver.restore(sess, modelloc + "/bestmodel.ckpt")
+ls = os.listdir(modelloc)
+for file in ls:
+    if file.endswith("npy"):
+        print(np.load(file))

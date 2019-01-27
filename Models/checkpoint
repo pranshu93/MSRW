@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/pranshu/Desktop/Academics/IITD/Ph.D/Research/MSRW/Models/bestmodel.ckpt"
+all_model_checkpoint_paths: "/home/pranshu/Desktop/Academics/IITD/Ph.D/Research/MSRW/Models/bestmodel.ckpt"
