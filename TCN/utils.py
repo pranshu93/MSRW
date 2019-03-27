@@ -245,7 +245,7 @@ def getArgs():
     parser.add_argument('-lr', type=float, default=0.01, help='Learning Rate of Optimisation')
     parser.add_argument('-bs', type=int, default=128, help='Batch Size of Optimisation')
     parser.add_argument('-hs', type=int, default=16, help='Hidden Layer Size')
-    parser.add_argument('-ot', type=bool, default=False, help='Adam(False)/Momentum(True)')
+    parser.add_argument('-ot', type=int, default=0, help='Adam(0)/Momentum(1)')
     parser.add_argument('-ml', type=int, default=768, help='Maximum slice length of cut taken for classification')
     parser.add_argument('-nc', type=int, default=2, help='Number of classes')
     parser.add_argument('-fn', type=int, default=3, help='Fold Number to classify for cross validation[1/2/3/4/5]')

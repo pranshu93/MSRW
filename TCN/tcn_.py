@@ -101,7 +101,7 @@ loss = tf.nn.softmax_cross_entropy_with_logits_v2(logits= outputs, labels=labels
 lr = args.lr
 learning_rate = tf.placeholder(tf.float32, shape=[])
 
-if(args.ot):
+if(args.ot==1):
     optimizer = tf.train.MomentumOptimizer(learning_rate=learning_rate,momentum=0.9,use_nesterov=True) 
 else:
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
