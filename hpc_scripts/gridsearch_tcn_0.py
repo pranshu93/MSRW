@@ -21,7 +21,7 @@ params = {}
 params["ne"] = [100]
 params["ksize"] = [8, 16, 32]
 params["clip"] = [2, 5]
-params["levels"] = [2, 3, 4]
+params["levels"] = [1, 2, 3, 4]
 params["nhid"] = [8, 16, 32]
 params["ot"] = [False, True]
 
