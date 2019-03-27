@@ -47,7 +47,7 @@ def my_function(v):
     res_str = []
     for i in range(1, 6):
         #res_str = subprocess.getoutput(call_str + " -fn " + str(i))
-        res_str.append(call_str + " -fn " + str(i) + ' -base ' + args.base)
+        res_str.append(call_str + " -fn " + str(i) + ' -base ' + args.base + ' -type ' + args.type + ' -out $outname')
         #file.write(res_str.split()[-1])
         #file.write(' ')
         # test_sum += float(res_str.split()[-1])

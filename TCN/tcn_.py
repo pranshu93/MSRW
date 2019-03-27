@@ -46,10 +46,11 @@ cv_ind = args.fn
 train_cuts = []; train_cuts_lbls = [];
 for i in range(5):
     if(i != cv_ind - 1):
-        cuts = np.load(fileloc + "/f" + str(i) + "_cuts.npy"); train_cuts = np.concatenate([train_cuts,cuts]);
-        labels = np.load(fileloc + "/f" + str(i) + "_cuts_lbls.npy"); train_cuts_lbls = np.concatenate([train_cuts_lbls,labels]);
+        cuts = np.load(fileloc + "/" + args.type + str(i) + "_cuts.npy"); train_cuts = np.concatenate([train_cuts,cuts]);
+        labels = np.load(fileloc + "/" + args.type + str(i) + "_cuts_lbls.npy"); train_cuts_lbls = np.concatenate([train_cuts_lbls,labels]);
 
-test_cuts = np.load(fileloc + "/f" + str(cv_ind - 1) + "_cuts.npy"); test_cuts_lbls = np.load(fileloc + "/f" + str(cv_ind - 1) + "_cuts_lbls.npy")
+test_cuts = np.load(fileloc + "/" + args.type + str(cv_ind - 1) + "_cuts.npy")
+test_cuts_lbls = np.load(fileloc + "/" + args.type + str(cv_ind - 1) + "_cuts_lbls.npy")
 
 max_length = args.ml
 
@@ -129,4 +130,13 @@ for i in range(num_epochs):
     #    saver.save(sess, modelloc + "/bestmodel.ckpt")	
     print(i,tr_acc,acc)
 print(max_acc)
-   
+
+# Create result string
+results_list = [args.ksize, args.clip, args.levels, args.nhid, args.w, args.ml, args.dropout, args.sp, args.lr,
+                args.ne, args.bs, args.hs, args.ot, args.fn, max_acc]
+
+# Print to output file
+out_handle = open(args.out, "a")
+# Write a line of output
+out_handle.write('\t'.join(map(str, results_list)) + '\n')
+out_handle.close()
