@@ -19,7 +19,7 @@ bat_sys='pbs'
 #nhum_fold='Bike_558'
 
 # Running time
-walltime='00:15:00'
+walltime='00:30:00'
 
 # Search big search space
 #big_search='True'
