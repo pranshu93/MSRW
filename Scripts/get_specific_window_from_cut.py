@@ -1,10 +1,10 @@
 import numpy as np
 import os
 import glob
-import csv
+import shutil
 from helpermethods import Data2IQ
 
-def extract_windows(indirs, outdir, class_label, stride, winlen, samprate=256, minlen_secs=1):
+def extract_windows(indirs, outdir, class_label, stride, winlen, get_window_position=1, samprate=256, minlen_secs=1):
     """
     Ref: https://github.com/dhruboroy29/MATLAB_Scripts/blob/neel/Scripts/extract_target_windows.m
     Extract sliding windows out of input data
@@ -19,22 +19,27 @@ def extract_windows(indirs, outdir, class_label, stride, winlen, samprate=256, m
 
     assert isinstance(indirs, (str, list))
     assert isinstance(outdir, str)
+    assert stride==winlen
 
     # If single directory given, create list
     if isinstance(indirs, str):
         indirs = [indirs]
 
     # Path to save walk length array as .csv
-    walk_length_stats_savepath = os.path.join(outdir,'3class_walk_length_stats.csv')
+    #walk_length_stats_savepath = os.path.join(outdir,'3class_walk_length_stats.csv')
 
     # Make output directory
-    outdir = os.path.join(outdir, 'winlen_' + str(winlen) + '_stride_' + str(stride), class_label)
+    outdir = os.path.join(outdir, 'winlen_' + str(winlen) + '_stride_' + str(stride) + '_winindex_' + str(get_window_position), class_label)
+
+    # Silently delete directory if it exists
+    if os.path.exists(outdir):
+        shutil.rmtree(outdir)
+
     # Silently create output directory if it doesn't exist
     os.makedirs(outdir, exist_ok=True)
 
     # Initialize cut length list to print statistics
     walk_length_stats = []
-
     for indir in indirs:
         assert isinstance(indir, str)
 
@@ -52,15 +57,20 @@ def extract_windows(indirs, outdir, class_label, stride, winlen, samprate=256, m
             # Print data column-wise
             # print(*comp.tolist(),sep='\n')
 
-            # Ignore very short walks
+            # Pad very short walks
             if cur_walk_secs < minlen_secs:
                 continue
+
+
 
             # Append current walk length to stats array
             walk_length_stats.append(cur_walk_secs)
 
             # Extract windows
-            for k1 in range(0, L - winlen, stride):
+            for k1 in range(0, L - winlen+1, stride):
+                if k1+1!=get_window_position:
+                    continue
+
                 temp_I = I[k1:k1 + winlen]
                 temp_Q = Q[k1:k1 + winlen]
 
@@ -73,16 +83,23 @@ def extract_windows(indirs, outdir, class_label, stride, winlen, samprate=256, m
                 # print(*Data_cut.astype(int), sep='\n')
 
                 # Output filenames follow MATLAB array indexing convention
-                outfilename = os.path.join(outdir,
-                                           cur_file_name + '_' + str(k1 + 1) + '_to_' + str(k1 + winlen) + '.data')
+                uniqueoutfilename = os.path.join(outdir,
+                                           cur_file_name + '_' + str(k1 + 1) + '_to_' + str(k1 + winlen))
 
                 # Save to output file
+                outfilename = uniqueoutfilename  + '.data'
+                uniq = 1
+                while os.path.exists(outfilename):
+                    outfilename = uniqueoutfilename + ' (' + str(uniq) + ').data'
+                    uniq += 1
+
                 Data_cut.tofile(outfilename)
+                break
 
     # Print walk list to csv file (for CDF computation, etc)
-    with open(walk_length_stats_savepath, 'a', newline='') as myfile:
-        wr = csv.writer(myfile, quoting=csv.QUOTE_NONE)
-        wr.writerow(walk_length_stats)
+    #with open(walk_length_stats_savepath, 'a', newline='') as myfile:
+    #    wr = csv.writer(myfile, quoting=csv.QUOTE_NONE)
+    #    wr.writerow(walk_length_stats)
 
     # Print walk statistics
     print('Number of cuts: ', len(walk_length_stats))
@@ -95,7 +112,7 @@ def extract_windows(indirs, outdir, class_label, stride, winlen, samprate=256, m
 
 # Test
 if __name__=='__main__':
-    outdir = '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Windowed'
+    outdir = '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Robust_Learning/Data_Repository'
 
     print('----------------Human BumbleBee Targets----------------')
     # Bumblebee human cuts
