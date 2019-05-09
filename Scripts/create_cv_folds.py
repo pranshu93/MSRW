@@ -13,8 +13,9 @@ parser.add_argument('-base', type=str, default='/mnt/6b93b438-a3d4-40d2-9f3d-d8c
                                                'Data/Bumblebee/Windowed/winlen_384_stride_384_winindex_1',
                     help='Base location of data')
 parser.add_argument('-outdir', type=str, default=None, help='Output folder')
-parser.add_argument('-hum', type=str, default='Human', help='Human cuts folder relative to base')
-parser.add_argument('-nhum', type=str, default='Nonhuman', help='Nonhuman cuts folder relative to base')
+parser.add_argument('-cldirs', type=list, default=['Human', 'Nonhuman'], help='Class folder paths relative to base')
+#parser.add_argument('-hum', type=str, default='Human', help='Human cuts folder relative to base')
+#parser.add_argument('-nhum', type=str, default='Nonhuman', help='Nonhuman cuts folder relative to base')
 parser.add_argument('-nfolds', type=int, default=5, help='Number of cross-validation folds')
 
 args=parser.parse_args()
@@ -27,7 +28,8 @@ else:
 os.makedirs(outdir, exist_ok=True)
 
 fileloc = args.base
-filestrs = [args.hum, args.nhum]
+#filestrs = [args.hum, args.nhum]
+filestrs = args.cldirs
 
 data = [];
 labels = [];
@@ -56,6 +58,6 @@ for train_index, test_index in kf.split(data):
     # Save test data
     np.save(os.path.join(outdir, args.type + str(i) + "_test.npy"), X_test)
     np.save(os.path.join(outdir, args.type + str(i) + "_test_lbls.npy"), y_test)
-    
+
     i += 1
 
