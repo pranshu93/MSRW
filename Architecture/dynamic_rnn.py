@@ -109,14 +109,23 @@ def main():
     #modelloc = "/scratch/cse/phd/anz178419/Models/MSRW/"
 
     cv_ind = args.fn
-    train_cuts = []; train_cuts_lbls = [];
+
+    # Old logic - Pranshu
+    '''train_cuts = []; train_cuts_lbls = [];
     for i in range(5):
         if(i != cv_ind - 1):
             cuts = np.load(fileloc + "/" + args.type + str(i) + "_cuts.npy"); train_cuts = np.concatenate([train_cuts,cuts]);
             labels = np.load(fileloc + "/" + args.type + str(i) + "_cuts_lbls.npy"); train_cuts_lbls = np.concatenate([train_cuts_lbls,labels]);
 
     test_cuts = np.load(fileloc + "/" + args.type + str(cv_ind - 1) + "_cuts.npy"); test_cuts_lbls = np.load(fileloc + "/" + args.type + str(cv_ind - 1) + "_cuts_lbls.npy")
-    #try_cuts = np.load(tryloc + "/f_cuts.npy"); try_cuts_lbls = np.load(tryloc + "/f_cuts_lbls.npy")
+    #try_cuts = np.load(tryloc + "/f_cuts.npy"); try_cuts_lbls = np.load(tryloc + "/f_cuts_lbls.npy")'''
+
+    # New logic - Dhrubo
+    train_cuts = np.load(os.path.join(fileloc, args.type + str(cv_ind - 1) + "_train.npy"))
+    train_cuts_lbls = np.load(os.path.join(fileloc, args.type + str(cv_ind - 1) + "_train_lbls.npy"))
+
+    test_cuts = np.load(os.path.join(fileloc, args.type + str(cv_ind - 1) + "_test.npy"))
+    test_cuts_lbls = np.load(os.path.join(fileloc, args.type + str(cv_ind - 1) + "_test_lbls.npy"))
 
 
     #max_length = 0;
