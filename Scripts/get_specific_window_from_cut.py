@@ -29,7 +29,7 @@ def extract_windows(indirs, outdir, class_label, stride, winlen, get_window_posi
     #walk_length_stats_savepath = os.path.join(outdir,'3class_walk_length_stats.csv')
 
     # Make output directory
-    outdir = os.path.join(outdir, 'winlen_' + str(winlen) + '_stride_' + str(stride) + '_winindex_' + str(get_window_position), class_label)
+    outdir = os.path.join(outdir, 'winlen_' + str(winlen) + '_winindex_' + str(get_window_position), class_label)
 
     # Silently delete directory if it exists
     if os.path.exists(outdir):

@@ -7,10 +7,10 @@ import os
 np.random.seed(42)
 
 parser = argparse.ArgumentParser(description='Arguments')
-parser.add_argument('-type', type=str, default='tar', help='Classification type: \'tar\' for target,' \
+parser.add_argument('-type', type=str, default='bb_tar', help='Classification type: \'tar\' for target,' \
                                                                    ' \'act\' for activity)')
 parser.add_argument('-base', type=str, default='/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/'
-                                               'Data/Bumblebee/Windowed/winlen_384_stride_384_winindex_1',
+                                               'Data/Bumblebee/Windowed/winlen_384_winindex_1',
                     help='Base location of data')
 parser.add_argument('-outdir', type=str, default='/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/'
                                                  'FastGRNN/Data/Bumblebee', help='Output folder')
@@ -47,18 +47,25 @@ labels = np.array(labels)
 # Get splits
 kf = KFold(n_splits=args.nfolds, random_state=42, shuffle=True)
 
+# Prefix
+prefix = args.type + '_' + os.path.basename(args.base)
+
+# Create output folder
+if not(os.path.exists(os.path.join(outdir, prefix))):
+    os.mkdir(os.path.join(outdir, prefix))
+
 i=0
 for train_index, test_index in kf.split(data):
     X_train, X_test = data[train_index], data[test_index]
     y_train, y_test = labels[train_index], labels[test_index]
 
     # Save train data
-    np.save(os.path.join(outdir, args.type + str(i) + "_train.npy"), X_train)
-    np.save(os.path.join(outdir, args.type + str(i) + "_train_lbls.npy"), y_train)
+    np.save(os.path.join(outdir, prefix, args.type + str(i) + "_train.npy"), X_train)
+    np.save(os.path.join(outdir, prefix, args.type + str(i) + "_train_lbls.npy"), y_train)
 
     # Save test data
-    np.save(os.path.join(outdir, args.type + str(i) + "_test.npy"), X_test)
-    np.save(os.path.join(outdir, args.type + str(i) + "_test_lbls.npy"), y_test)
+    np.save(os.path.join(outdir, prefix, args.type + str(i) + "_test.npy"), X_test)
+    np.save(os.path.join(outdir, prefix, args.type + str(i) + "_test_lbls.npy"), y_test)
 
     i += 1
 
