@@ -4,7 +4,8 @@ import glob
 import shutil
 from helpermethods import Data2IQ
 
-def extract_windows(indirs, outdir, class_label, stride, winlen, get_window_position=1, samprate=256, minlen_secs=1):
+def extract_windows(indirs, outdir, class_label, stride, winlen,
+                    windows_all=False, get_window_position=0, samprate=256, minlen_secs=1):
     """
     Ref: https://github.com/dhruboroy29/MATLAB_Scripts/blob/neel/Scripts/extract_target_windows.m
     Extract sliding windows out of input data
@@ -29,7 +30,12 @@ def extract_windows(indirs, outdir, class_label, stride, winlen, get_window_posi
     #walk_length_stats_savepath = os.path.join(outdir,'3class_walk_length_stats.csv')
 
     # Make output directory
-    outdir = os.path.join(outdir, 'winlen_' + str(winlen) + '_winindex_' + str(get_window_position), class_label)
+    if windows_all:
+        suffix = 'all'
+    else:
+        suffix = str(get_window_position)
+
+    outdir = os.path.join(outdir, 'winlen_' + str(winlen) + '_winindex_' + suffix, class_label)
 
     # Silently delete directory if it exists
     if os.path.exists(outdir):
@@ -61,14 +67,22 @@ def extract_windows(indirs, outdir, class_label, stride, winlen, get_window_posi
             if cur_walk_secs < minlen_secs:
                 continue
 
-
-
             # Append current walk length to stats array
             walk_length_stats.append(cur_walk_secs)
 
             # Extract windows
-            for k1 in range(0, L - winlen+1, stride):
-                if k1+1!=get_window_position:
+            num_windows = list(range(0, L - winlen + 1, stride))
+
+            # If not all windows
+            if not(windows_all):
+                # Account for negative window positions (last, second last, etc.)
+                if get_window_position < 0:
+                    get_window_position_samples = (len(num_windows) + get_window_position) * stride
+                else:
+                    get_window_position_samples = get_window_position * stride
+
+            for k1 in num_windows:
+                if not(windows_all) and k1!=get_window_position_samples:
                     continue
 
                 temp_I = I[k1:k1 + winlen]
@@ -94,7 +108,9 @@ def extract_windows(indirs, outdir, class_label, stride, winlen, get_window_posi
                     uniq += 1
 
                 Data_cut.tofile(outfilename)
-                break
+
+                if not(windows_all):
+                    break
 
     # Print walk list to csv file (for CDF computation, etc)
     #with open(walk_length_stats_savepath, 'a', newline='') as myfile:

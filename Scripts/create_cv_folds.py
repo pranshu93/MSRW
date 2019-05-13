@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser(description='Arguments')
 parser.add_argument('-type', type=str, default='bb_tar', help='Classification type: \'tar\' for target,' \
                                                                    ' \'act\' for activity)')
 parser.add_argument('-base', type=str, default='/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/'
-                                               'Data/Bumblebee/Windowed/winlen_384_winindex_1',
+                                               'Data/Bumblebee/Windowed/winlen_384_winindex_0',
                     help='Base location of data')
 parser.add_argument('-outdir', type=str, default='/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/'
                                                  'FastGRNN/Data/Bumblebee', help='Output folder')
