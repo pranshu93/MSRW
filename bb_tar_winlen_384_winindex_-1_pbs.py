@@ -3,13 +3,13 @@ import os
 
 ######################### ONLY MODIFY THESE VALUES #########################
 # Script prefix
-prefix='bb_tar_winlen_384_winindex_0'
+prefix='bb_tar_winlen_384_winindex_-1'
 
 # Number of splits of hyperparam file
 num_splits='32'
 
 # Base path of data
-base='/fs/project/PAS1090/radar/Bumblebee/bb_tar_winlen_384_winindex_0'
+base='/fs/project/PAS1090/radar/Bumblebee/bb_tar_winlen_384_winindex_-1'
 
 # Batch system
 bat_sys='pbs'
