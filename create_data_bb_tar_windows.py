@@ -32,9 +32,10 @@ nonhuman_dirs = [
 
 sampling_rate = 256
 
-win_lens = [ 1.5, 2, 2.5, 3, 3.5, 4, 4.5 ]
+win_lens = [ 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5 ]
 
 for winlen in [int(x * sampling_rate) for x in win_lens]:
+    # Create windows
     print('----------------Human BumbleBee Targets (winlen={})----------------'.format(winlen))
     # Bumblebee human cuts
     extract_windows(indirs=human_dirs,
