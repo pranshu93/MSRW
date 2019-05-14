@@ -41,7 +41,7 @@ else:
     p4 = [0.005]
     p5 = [128]
     p6 = [16,32]
-    p7 = [0]
+    p7 = [0,1]
     p8 = [768]
 
 out_folder = os.path.join('..',args.bat+'_hpc')
