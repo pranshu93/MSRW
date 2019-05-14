@@ -12,7 +12,7 @@ num_splits='32'
 base='/scratch/dr2915/Bumblebee/bb_tar_winlen_384_winindex_all'
 
 # Batch system
-bat_sys='pbs'
+bat_sys='slurm'
 
 # Human and nonhuman folders
 #hum_fold='austere_404_human'
