@@ -32,8 +32,8 @@ if args.big:
     p7 = [0] #[1]
     p8 = [512,768,1024] #[768]
 else:
-    p12 = ['quantSigm', 'quantTanh']
-    p13 = ['quantTanh', 'quantSigm']
+    p12 = ['sigmoid', 'tanh']
+    p13 = ['tanh', 'sigmoid']
     p14 = [0.25, 0.75]
     p15 = [0.25, 0.75]
     p2 = [32]
@@ -42,7 +42,7 @@ else:
     p5 = [128]
     p6 = [16,32]
     p7 = [0,1]
-    p8 = [768]
+    p8 = [768] # no longer used
 
 out_folder = os.path.join('..',args.bat+'_hpc')
 out_suffix=''
