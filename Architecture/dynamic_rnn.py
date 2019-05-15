@@ -145,6 +145,8 @@ def main():
     #print(mean,std)
     train_cuts_n = []; test_cuts_n = []; try_cuts_n = [];
 
+    max_length = train_cuts.shape[1]
+
     # Are we representing input as Q15?
     if args.q15:
         mean = int(mean)
@@ -226,7 +228,7 @@ def main():
 
     # Create result string
     results_list = [args.ggnl, args.gunl, args.ur, args.wr, args.w, args.sp, args.lr, args.bs, args.hs, args.ot,
-           args.ml, args.fn, max_acc]
+           max_length, args.fn, max_acc]
 
     # Print to output file
     out_handle = open(args.out, "a")
