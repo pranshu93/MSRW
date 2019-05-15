@@ -30,3 +30,8 @@ print('Best CV accuracy:', str(max))
 print('Corresponding params')
 print("\t".join([str(i) for i in ['ggnl', 'gunl', 'ur', 'wr', 'w', 'sp', 'lr', 'bs', 'hs', 'ot', 'ml']]))
 print("\t".join([str(i) for i in idx]))
+
+# Create rerun string for best hyperparams
+param_str = ['-ggnl', '-gunl', '-ur', '-wr', '-w', '-sp', '-lr', '-bs', '-hs', '-ot', '-ml']
+print('Best hyperparam string')
+print(" ".join([str(item) for sublist in list(map(list,zip(param_str,idx))) for item in sublist]))
