@@ -19,9 +19,14 @@ if len(sys.argv)<2:
 
 args = parser.parse_args()
 
+if args.q15:
+    p12 = ['quantSigm', 'quantTanh']  # ['relu','quantSigm','quantTanh'] #['quantSigm']
+    p13 = ['quantTanh', 'quantSigm']  # ['relu','quantSigm','quantTanh'] #['quantTanh']
+else:
+    p12 = ['sigmoid', 'tanh']
+    p13 = ['tanh', 'sigmoid']
+
 if args.big:
-    p12 = ['quantSigm','quantTanh'] #['relu','quantSigm','quantTanh'] #['quantSigm']
-    p13 = ['quantTanh','quantSigm'] #['relu','quantSigm','quantTanh'] #['quantTanh']
     p14 = [0.25,0.75] #[0.25,0.5,0.75,1] #[1]
     p15 = [0.25,0.75] #[0.25,0.5,0.75,1] #[1]
     p2 =  [32,64,96,128] #[32]
@@ -32,8 +37,6 @@ if args.big:
     p7 = [0] #[1]
     p8 = [512,768,1024] #[768]
 else:
-    p12 = ['sigmoid', 'tanh']
-    p13 = ['tanh', 'sigmoid']
     p14 = [0.25, 0.75]
     p15 = [0.25, 0.75]
     p2 = [32]
