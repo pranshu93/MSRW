@@ -133,8 +133,11 @@ def main():
     #for i in range(train_cuts.shape[0]): cut_lengths.append(train_cuts[i].__len__());
     #for i in range(test_cuts.shape[0]): cut_lengths.append(test_cuts[i].__len__());
     #cut_lengths = np.array(cut_lengths)
-    max_length = args.ml#np.percentile(cut_lengths,0)
+    #max_length = args.ml#np.percentile(cut_lengths,0)
     #print(max_length)
+
+    max_length = train_cuts.shape[1]
+    print('Max length:', max_length)
 
     #seq_max_len = int(np.floor(float(max_length-window)/stride)+1)
     # TODO: Undo hack to improve accuracy
@@ -144,8 +147,6 @@ def main():
     mean = np.mean(np.array(all_cuts)); std = np.std(np.array(all_cuts));
     #print(mean,std)
     train_cuts_n = []; test_cuts_n = []; try_cuts_n = [];
-
-    max_length = train_cuts.shape[1]
 
     # Are we representing input as Q15?
     if args.q15:
