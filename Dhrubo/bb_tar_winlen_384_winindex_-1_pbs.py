@@ -1,6 +1,8 @@
 import sys
 import os
 
+sys.path.append('../')
+
 ######################### ONLY MODIFY THESE VALUES #########################
 # Script prefix
 prefix='bb_tar_winlen_384_winindex_-1'
@@ -29,7 +31,7 @@ jobfolder = '../'+ bat_sys +'_hpc/'
 init_argv=sys.argv
 
 # Enter hpc_scripts folder
-os.chdir('hpc_scripts')
+os.chdir('../hpc_scripts')
 
 # Prepare data
 #print('###### Scripts/processing_data #####')

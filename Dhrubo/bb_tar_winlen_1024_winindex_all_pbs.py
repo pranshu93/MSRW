@@ -1,15 +1,17 @@
 import sys
 import os
 
+sys.path.append('../')
+
 ######################### ONLY MODIFY THESE VALUES #########################
 # Script prefix
-prefix='bb_tar_winlen_384_winindex_0'
+prefix='bb_tar_winlen_1024_winindex_all'
 
 # Number of splits of hyperparam file
 num_splits='32'
 
 # Base path of data
-base='/fs/project/PAS1090/radar/Bumblebee/bb_tar_winlen_384_winindex_0'
+base='/fs/project/PAS1090/radar/Bumblebee/bb_tar_winlen_1024_winindex_all'
 
 # Batch system
 bat_sys='pbs'
@@ -19,7 +21,7 @@ bat_sys='pbs'
 #nhum_fold='Bike_485_radial'
 
 # Running time
-walltime='3:00:00'
+walltime='72:00:00'
 
 ######################### KEEP THE REST INTACT #########################
 # Folder where jobs are saved
@@ -29,7 +31,7 @@ jobfolder = '../'+ bat_sys +'_hpc/'
 init_argv=sys.argv
 
 # Enter hpc_scripts folder
-os.chdir('hpc_scripts')
+os.chdir('../hpc_scripts')
 
 # Prepare data
 #print('###### Scripts/processing_data #####')

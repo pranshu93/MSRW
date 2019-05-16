@@ -1,7 +1,7 @@
 import sys, os
 from importlib import reload
 
-sys.path.append('Scripts')
+sys.path.append('../Scripts')
 
 from Scripts.get_specific_window_from_cut import extract_windows
 
