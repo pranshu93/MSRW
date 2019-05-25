@@ -70,7 +70,7 @@ hyperparams = np.asarray(list(itertools.product(p12, p13, p14, p15, p2, p3, p4, 
 results = pool.map(generate_trainstring, hyperparams)
 
 # Flatten
-results = [item for sublist in results for item in sublist]
+#results = [item for sublist in results for item in sublist]
 
 with open(out_file, 'w') as f:
     print('outname=`echo $0 | sed "s/.sh/.out/g"`', file=f)
