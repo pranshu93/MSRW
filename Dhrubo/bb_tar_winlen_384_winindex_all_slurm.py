@@ -34,9 +34,9 @@ init_argv=sys.argv
 os.chdir('../hpc_scripts')
 
 # Prepare data
-#print('###### Scripts/processing_data #####')
-#sys.argv=init_argv+['-type', prefix, '-base', base, '-hum', hum_fold, '-nhum', nhum_fold]
-#import Scripts.processing_data
+print('###### Scripts/processing_data #####')
+sys.argv=init_argv+['-type', prefix, '-base', base]
+import Scripts.create_train_val_test_split
 
 # Generate gridsearch
 print('###### hpc_scripts/gridsearch #####')
