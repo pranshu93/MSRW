@@ -16,8 +16,7 @@ parser.add_argument('-type', type=str, default='bb_tar', help='Classification ty
 parser.add_argument('-base', type=str, default='/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/'
                                                'Data/Bumblebee/Windowed/winlen_384_winindex_all',
                     help='Base location of data')
-parser.add_argument('-outdir', type=str, default='/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/'
-                                                 'FastGRNN/Data/Bumblebee', help='Output folder')
+parser.add_argument('-outdir', type=str, default=None, help='Output folder')
 parser.add_argument('-cldirs', type=list, default=['Human', 'Nonhuman'], help='Class folder paths relative to base')
 #parser.add_argument('-hum', type=str, default='Human', help='Human cuts folder relative to base')
 #parser.add_argument('-nhum', type=str, default='Nonhuman', help='Nonhuman cuts folder relative to base')
