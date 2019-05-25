@@ -39,12 +39,12 @@ if args.big:
 else:
     p14 = [0.25, 0.75]
     p15 = [0.25, 0.75]
-    p2 = [32]
+    p2 = [32, 64, 96, 128]
     p3 = [0.5]
     p4 = [0.005]
-    p5 = [128]
-    p6 = [16, 32]
-    p7 = [0, 1]
+    p5 = [64, 128]
+    p6 = [16,32,48,64]
+    p7 = [0]
     # p8 = [768] # no longer used
 
 out_folder = os.path.join('..', args.bat + '_hpc')
@@ -57,7 +57,7 @@ out_file = os.path.join('..', args.bat + '_hpc', args.type + out_suffix + '.sh')
 
 
 def generate_trainstring(v):
-    res_str = "python3 ../Architecture/dynamic_rnn.py -ggnl " + str(
+    res_str = "python3 ../Architecture/dynamic_rnn_tvt.py -ggnl " + str(
         v[0]) + " -gunl " + str(v[1]) + " -ur " + str(v[2]) + " -wr " + str(v[3]) + " -w " + str(
         v[4]) + " -sp " + str(v[5]) + " -lr " + str(v[6]) + " -bs " + str(v[7]) + " -hs " + str(
         v[8]) + " -ot " + str(v[9]) + " -type " + args.type + " -q15 " + str(
