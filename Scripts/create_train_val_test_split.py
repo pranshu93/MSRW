@@ -1,8 +1,11 @@
 from sklearn.model_selection import train_test_split
+from pathlib import PurePath
 from shutil import copy
 import numpy as np
 import argparse
 import os
+
+
 
 # Set random seed
 np.random.seed(42)
@@ -44,15 +47,15 @@ filenames = []
 # Data
 [[data.append(np.fromfile(open(os.path.join(os.path.join(fileloc, filestr), filename), "r"), dtype=np.uint16).tolist())
   for filename in os.listdir(os.path.join(fileloc, filestr))] for filestr in filestrs]
-data = np.array(data, dtype=object);
+data = np.array(data)
 
 # Labels
 [labels.extend([i] * [None for filename in os.listdir(os.path.join(fileloc, filestrs[i]))].__len__()) for i in
  range(filestrs.__len__())]
-
-data = np.array(data)
-print('Total number of data points: {}'.format(data.__len__()))
 labels = np.array(labels)
+
+print('Total number of data points: {}'.format(data.__len__()))
+
 
 indices = np.arange(len(filenames))
 
@@ -91,15 +94,25 @@ train_dir = os.path.join(outdir, prefix, prefix + "_train")
 test_dir = os.path.join(outdir, prefix, prefix + "_test")
 val_dir = os.path.join(outdir, prefix, prefix + "_val")
 
-os.makedirs(train_dir, exist_ok=True)
-os.makedirs(test_dir, exist_ok=True)
-os.makedirs(val_dir, exist_ok=True)
+for cls in filestrs:
+    os.makedirs(os.path.join(train_dir,cls), exist_ok=True)
+    os.makedirs(os.path.join(test_dir,cls), exist_ok=True)
+    os.makedirs(os.path.join(val_dir,cls), exist_ok=True)
 
 for tr in files_train:
-    copy(tr, train_dir)
+    # Get class
+    cur_class = PurePath(tr).parent.name
+    # Copy in appropriate folder
+    copy(tr, os.path.join(train_dir,cur_class))
 
 for tst in files_test:
-    copy(tst, test_dir)
+    # Get class
+    cur_class = PurePath(tst).parent.name
+    # Copy in appropriate folder
+    copy(tst, os.path.join(test_dir, cur_class))
 
 for val in files_val:
-    copy(val, val_dir)
+    # Get class
+    cur_class = PurePath(val).parent.name
+    # Copy in appropriate folder
+    copy(val, os.path.join(val_dir, cur_class))
