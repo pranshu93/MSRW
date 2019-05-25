@@ -210,7 +210,7 @@ def main():
 
     saver = tf.train.Saver()
 
-    max_acc = 0; test_acc=0; best_iter = 0;
+    val_acc = 0; test_acc=0; tr_acc=0; best_iter = 0;
 
     for i in range(num_epochs):
         print('Epoch num: ', i)
@@ -219,11 +219,10 @@ def main():
         forward_iter(train_data,train_labels,train_seqlen,slice(num_iter*batch_size,train_data.__len__()),True)
         acc = forward_iter(val_data, val_labels, val_seqlen, slice(0, val_data.__len__()), False)
 
-        #tr_acc = forward_iter(train_data,train_labels,train_seqlen,slice(0,train_data.__len__()),False)
-
-        if(max_acc < acc):
-            max_acc = acc
-            # Get corresponding test acc
+        if(val_acc < acc):
+            val_acc = acc
+            # Get corresponding tr and test acc
+            tr_acc = forward_iter(train_data,train_labels,train_seqlen,slice(0,train_data.__len__()),False)
             test_acc = forward_iter(test_data, test_labels, test_seqlen, slice(0, test_data.__len__()), False)
 
         #if(max_try_acc < try_acc):	max_try_acc = try_acc
@@ -232,11 +231,11 @@ def main():
 
             #best_iter = i
         #print(i,tr_acc,acc,try_acc)
-    print(max_acc,test_acc)
+    print(tr_acc, val_acc, test_acc)
 
     # Create result string
     results_list = [args.ggnl, args.gunl, args.ur, args.wr, args.w, args.sp, args.lr, args.bs, args.hs, args.ot,
-           max_length, args.fn, max_acc, test_acc]
+           max_length, tr_acc, val_acc, test_acc]
 
     # Print to output file
     out_handle = open(args.out, "a")
@@ -283,7 +282,7 @@ def main():
         print (formatp(v))
     '''
 
-    return [max_acc, test_acc]
+    return [val_acc, test_acc]
 
 if __name__ == '__main__':
     ret = main()
