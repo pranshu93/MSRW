@@ -8,7 +8,7 @@ sys.path.append('../')
 prefix='bb_tar_winlen_256_winindex_all'
 
 # Number of splits of hyperparam file
-num_splits='4'
+num_splits='8'
 
 # Base path of data
 base='/scratch/dr2915/Bumblebee/bb_tar_winlen_256_winindex_all'
