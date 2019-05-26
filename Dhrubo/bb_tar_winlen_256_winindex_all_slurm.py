@@ -8,7 +8,7 @@ sys.path.append('../')
 prefix='bb_tar_winlen_256_winindex_all'
 
 # Number of splits of hyperparam file
-num_splits='32'
+num_splits='8'
 
 # Base path of data
 base='/scratch/dr2915/Bumblebee/bb_tar_winlen_256_winindex_all'
@@ -21,7 +21,7 @@ bat_sys='slurm'
 #nhum_fold='Bike_485_radial'
 
 # Running time
-walltime='7-0'
+walltime='3-0'
 
 ######################### KEEP THE REST INTACT #########################
 # Folder where jobs are saved
