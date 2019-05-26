@@ -2,7 +2,7 @@ import numpy as np
 import os
 import glob
 import shutil
-from helpermethods import Data2IQ
+from .helpermethods import Data2IQ
 
 def extract_windows(indirs, outdir, class_label, stride, winlen,
                     windows_all=False, get_window_position=0, samprate=256, minlen_secs=1):

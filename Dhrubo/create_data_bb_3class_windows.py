@@ -1,7 +1,7 @@
 import sys, os
 from importlib import reload
 
-sys.path.append('../Scripts')
+sys.path.append('../')
 
 from Scripts.get_specific_window_from_cut import extract_windows
 
@@ -51,7 +51,7 @@ nonhuman_dirs = [
 
 sampling_rate = 256
 
-win_lens = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5]
+win_lens = [1, 1.5, 2, 2.5, 3]
 
 ######################### KEEP THE REST INTACT #########################
 
@@ -96,9 +96,9 @@ for winlen in [int(x * sampling_rate) for x in win_lens]:
                             '-cldirs', classdirs]
 
     if not(reload_flag):
-        import Scripts.create_cv_folds
+        import Scripts.create_train_val_test_split
         reload_flag = True
     else:
-        reload(Scripts.create_cv_folds)
+        reload(Scripts.create_train_val_test_split)
 
     print('Extraction completed.\n')
