@@ -219,13 +219,13 @@ def main():
         num_iter = int(train_data.__len__()/batch_size)
         [forward_iter(train_data,train_labels,train_seqlen,slice(j*batch_size,(j+1)*batch_size),True) for j in range(num_iter)]
         forward_iter(train_data,train_labels,train_seqlen,slice(num_iter*batch_size,train_data.__len__()),True)
-        _,acc = forward_iter(val_data, val_labels, val_seqlen, slice(0, val_data.__len__()), False)
+        [acc,_] = forward_iter(val_data, val_labels, val_seqlen, slice(0, val_data.__len__()), False)
 
         if(val_acc < acc):
             val_acc = acc
             # Get corresponding tr and test acc
-            _,tr_acc = forward_iter(train_data,train_labels,train_seqlen,slice(0,train_data.__len__()),False)
-            test_preds, test_acc = forward_iter(test_data, test_labels, test_seqlen, slice(0, test_data.__len__()), False)
+            [tr_acc,_] = forward_iter(train_data,train_labels,train_seqlen,slice(0,train_data.__len__()),False)
+            [test_acc, test_preds] = forward_iter(test_data, test_labels, test_seqlen, slice(0, test_data.__len__()), False)
 
         #if(max_try_acc < try_acc):	max_try_acc = try_acc
 
@@ -233,20 +233,21 @@ def main():
 
             #best_iter = i
         #print(i,tr_acc,acc,try_acc)
-    print(tr_acc, val_acc, test_acc)
+    #print(tr_acc, val_acc, test_acc)
 
     # Create result string
     results_list = [args.ggnl, args.gunl, args.ur, args.wr, args.w, args.sp, args.lr, args.bs, args.hs, args.ot,
            max_length, tr_acc, val_acc, test_acc]
+
+    # Print confusion matrix
+    print('\t'.join(map(str, results_list)) + '\n')
+    printFormattedConfusionMatrix(getConfusionMatrix(test_preds, test_cuts_lbls, num_classes))
 
     # Print to output file
     out_handle = open(args.out, "a")
     # Write a line of output
     out_handle.write('\t'.join(map(str, results_list)) + '\n')
     out_handle.close()
-
-    # Print confusion matrix
-    printFormattedConfusionMatrix(getConfusionMatrix(test_preds, test_labels))
 
     '''
     saver.restore(sess, modelloc + "bestmodel.ckpt")
