@@ -8,6 +8,7 @@ import argparse
 from math import sqrt
 from tensorflow.contrib import rnn
 from rnn import FastRNNCell,FastGRNNCell
+from utils import getConfusionMatrix, printFormattedConfusionMatrix, getPrecisionRecall
 import sys
 
 #os.environ["CUDA_VISIBLE_DEVICES"]=""
