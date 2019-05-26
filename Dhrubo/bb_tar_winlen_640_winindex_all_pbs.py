@@ -8,7 +8,7 @@ sys.path.append('../')
 prefix='bb_tar_winlen_640_winindex_all'
 
 # Number of splits of hyperparam file
-num_splits='32'
+num_splits='8'
 
 # Base path of data
 base='/fs/project/PAS1090/radar/Bumblebee/bb_tar_winlen_640_winindex_all'
