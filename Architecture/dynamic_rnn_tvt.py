@@ -169,7 +169,8 @@ def main():
     batch_size = args.bs
 
     hidden_dim = args.hs
-    num_classes = 2
+    num_classes = len(np.unique(train_cuts_lbls))
+    print('Num classes: {}'.format(num_classes))
 
     train_data, train_labels, train_seqlen = process(train_cuts_n,train_cuts_lbls)
     test_data, test_labels, test_seqlen = process(test_cuts_n,test_cuts_lbls)
