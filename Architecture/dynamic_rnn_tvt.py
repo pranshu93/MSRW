@@ -56,7 +56,7 @@ def main():
         if(code):
             _, cur_loss=sess.run([train_op,loss_op], feed_dict={X: batchx, Y:batchy, seqlen: batchz, learning_rate: lr})
             print('Cur loss: ', cur_loss)
-        else: return(sess.run(accuracy, feed_dict={X: batchx, Y: batchy, seqlen: batchz, learning_rate: lr}))
+        else: return(sess.run([accuracy, pred_labels], feed_dict={X: batchx, Y: batchy, seqlen: batchz, learning_rate: lr}))
 
     def dynamicRNN(x):
         x = tf.unstack(x, seq_max_len, 1)
@@ -212,20 +212,20 @@ def main():
 
     saver = tf.train.Saver()
 
-    val_acc = 0; test_acc=0; tr_acc=0; best_iter = 0;
+    val_acc = 0; test_acc=0; tr_acc=0; best_iter = 0; test_preds=[]
 
     for i in range(num_epochs):
         print('Epoch num: ', i)
         num_iter = int(train_data.__len__()/batch_size)
         [forward_iter(train_data,train_labels,train_seqlen,slice(j*batch_size,(j+1)*batch_size),True) for j in range(num_iter)]
         forward_iter(train_data,train_labels,train_seqlen,slice(num_iter*batch_size,train_data.__len__()),True)
-        acc = forward_iter(val_data, val_labels, val_seqlen, slice(0, val_data.__len__()), False)
+        _,acc = forward_iter(val_data, val_labels, val_seqlen, slice(0, val_data.__len__()), False)
 
         if(val_acc < acc):
             val_acc = acc
             # Get corresponding tr and test acc
-            tr_acc = forward_iter(train_data,train_labels,train_seqlen,slice(0,train_data.__len__()),False)
-            test_acc = forward_iter(test_data, test_labels, test_seqlen, slice(0, test_data.__len__()), False)
+            _,tr_acc = forward_iter(train_data,train_labels,train_seqlen,slice(0,train_data.__len__()),False)
+            test_preds, test_acc = forward_iter(test_data, test_labels, test_seqlen, slice(0, test_data.__len__()), False)
 
         #if(max_try_acc < try_acc):	max_try_acc = try_acc
 
@@ -244,6 +244,9 @@ def main():
     # Write a line of output
     out_handle.write('\t'.join(map(str, results_list)) + '\n')
     out_handle.close()
+
+    # Print confusion matrix
+    printFormattedConfusionMatrix(getConfusionMatrix(test_preds, test_labels))
 
     '''
     saver.restore(sess, modelloc + "bestmodel.ckpt")
