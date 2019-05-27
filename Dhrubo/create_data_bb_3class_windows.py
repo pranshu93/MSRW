@@ -89,7 +89,7 @@ for winlen in [int(x * sampling_rate) for x in win_lens]:
                     minlen_secs=winlen / sampling_rate)
 
     # Create CV folds
-    print('###################### Creating folds (winlen={}) #####################'.format(winlen))
+    print('###################### Creating train-val-test splits (winlen={}) #####################'.format(winlen))
     sys.argv = init_argv + ['-type', prefix,
                             '-base', os.path.join(outdir, 'winlen_' + str(winlen) + '_winindex_all'),
                             '-outdir', foldoutdir,
