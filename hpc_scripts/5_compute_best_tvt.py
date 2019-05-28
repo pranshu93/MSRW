@@ -2,11 +2,10 @@
 
 import pandas as pd
 import numpy as np
-import csv
-import sys
+import sys, os
 
 filename = sys.argv[1]
-outfilename = filename.replace('out', 'cv')
+outfilename = sys.argv[2]
 
 df = pd.read_table(filename, header=None,
                    names=['ggnl', 'gunl', 'ur', 'wr', 'w', 'sp', 'lr', 'bs', 'hs', 'ot', 'ml', 'Tr_Acc', 'Val_Acc', 'Acc'])
@@ -35,3 +34,11 @@ print("\t".join([str(i) for i in idx]))
 param_str = ['-ggnl', '-gunl', '-ur', '-wr', '-w', '-sp', '-lr', '-bs', '-hs', '-ot', '-ml']
 print('Best hyperparam string')
 print(" ".join([str(item) for sublist in list(map(list,zip(param_str,idx))) for item in sublist]))
+
+# Get corresponding line in script file
+with open(os.path.join(os.path.dirname(filename), os.path.splitext(os.path.basename(filename))[0]+'.sh'), "r") as f:
+    for t in np.arange(df['Acc'].idxmax()+1):
+        f.readline()
+    with open(outfilename, "a") as o:
+        o.write(f.readline())
+
