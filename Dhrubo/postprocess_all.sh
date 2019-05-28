@@ -24,4 +24,4 @@ done
 sed -i 's|'/fs/project/PAS1090/radar/Bumblebee/'|'/scratch/dr2915/Bumblebee/'|g' $outname
 
 sh ../hpc_scripts/1_split_hyperparam_file.sh $outname 5
-sh ../hpc_scripts/2_create_batch_jobs.sh "rerun_bb_tar_winindex_all" "00:02:00" slurm
+sh ../hpc_scripts/2_create_batch_jobs.sh "rerun_bb_tar_winindex_all" "02:00:00" slurm
