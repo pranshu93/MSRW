@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source activate tfgpu
+
 list_files=(
             bb_tar_winlen_256_winindex_all
             bb_tar_winlen_384_winindex_all

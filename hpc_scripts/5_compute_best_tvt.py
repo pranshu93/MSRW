@@ -24,7 +24,7 @@ df.dropna(subset=['Acc'], inplace=True)
 
 # Show best hyperparams
 max = df['Acc'].max()
-idx = df['Acc'].idxmax()
+idx = df.loc[df['Acc'].idxmax()].tolist()
 
 print('Best Test accuracy:', str(max))
 print('Corresponding params')
