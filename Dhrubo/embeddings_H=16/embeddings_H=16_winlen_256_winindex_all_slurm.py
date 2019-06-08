@@ -15,7 +15,7 @@ num_splits='8'
 
 # Base path of data
 base='/scratch/dr2915/Bumblebee/bb_3class_winlen_' + str(winlen) + '_winindex_all/' \
-     'HumanVsNonhuman_48_16/embedding_H=16_k=30_ep=10_it=10_rnd=10'
+     'HumanVsNonhuman_48_16/embedding_H=16_k=14_ep=10_it=10_rnd=10'
 
 # Batch system
 bat_sys='slurm'
