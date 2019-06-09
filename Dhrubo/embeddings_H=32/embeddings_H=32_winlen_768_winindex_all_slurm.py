@@ -25,7 +25,7 @@ bat_sys='slurm'
 #nhum_fold='Bike_485_radial'
 
 # Running time
-walltime='12:00:00'
+walltime='3-0'
 
 ######################### KEEP THE REST INTACT #########################
 # Enter hpc_scripts folder
