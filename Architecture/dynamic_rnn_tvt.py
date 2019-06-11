@@ -241,7 +241,16 @@ def main():
 
     # Print confusion matrix
     print('\t'.join(map(str, results_list)) + '\n')
-    printFormattedConfusionMatrix(getConfusionMatrix(test_preds, test_cuts_lbls, num_classes))
+    confmatrix = getConfusionMatrix(test_preds, test_cuts_lbls, num_classes)
+    printFormattedConfusionMatrix(confmatrix)
+
+    # Get class recalls
+    recalllist = np.sum(confmatrix, axis=0)
+    recalllist = [confmatrix[i][i] / x if x !=
+                                          0 else -1 for i, x in enumerate(recalllist)]
+
+    for recall in recalllist:
+        results_list.append(recall)
 
     # Print to output file
     out_handle = open(args.out, "a")
