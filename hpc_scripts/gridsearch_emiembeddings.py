@@ -10,7 +10,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-type', type=str, default='tar', help='tar/act/any other prefix')
 parser.add_argument('-base', type=str, help='Base path of data')
 parser.add_argument('-bat', type=str, default='pbs', help='Batch system (pbs/slurm)')
-parser.add_argument('-big', type=ast.literal_eval, default=False, help='Is this a big gridsearch?')
+parser.add_argument('-bs', type=int, help='Batch size')
+parser.add_argument('-H', type=int, help='Hiidden size')
+#parser.add_argument('-big', type=ast.literal_eval, default=False, help='Is this a big gridsearch?')
 parser.add_argument('-q15', type=ast.literal_eval, default=False, help='Is this a Q15 gridsearch?')
 
 if len(sys.argv) < 2:
@@ -26,34 +28,34 @@ else:
     p12 = ['sigmoid', 'tanh']
     p13 = ['tanh', 'sigmoid']
 
-if args.big:
-    p14 = [0.25, 0.75]  # [0.25,0.5,0.75,1] #[1]
-    p15 = [0.25, 0.75]  # [0.25,0.5,0.75,1] #[1]
-    p2 = [32, 64, 96, 128]  # [32]
-    p3 = [0.25, 0.5, 0.75, 1]  # [0.5]
-    p4 = [0.005]  # [0.005,0.01]
-    p5 = [32, 64, 96, 128]  # [128]
-    p6 = [16, 48]  # [16,32,48,64] #[16]
-    p7 = [0]  # [1]
+#if args.big:
+    #p14 = [0.25, 0.75]  # [0.25,0.5,0.75,1] #[1]
+    #p15 = [0.25, 0.75]  # [0.25,0.5,0.75,1] #[1]
+    #p2 = [32, 64, 96, 128]  # [32]
+    #p3 = [0.25, 0.5, 0.75, 1]  # [0.5]
+    #p4 = [0.005]  # [0.005,0.01]
+    #p5 = [32, 64, 96, 128]  # [128]
+    #p6 = [16, 48]  # [16,32,48,64] #[16]
+    #p7 = [0]  # [1]
     # p8 = [512,768,1024] #[768]
-else:
-    p14 = [0.25, 0.75]
-    p15 = [0.25, 0.75]
-    p2 = [16]
-    p3 = [0.5]
-    p4 = [0.005]
-    p5 = [64, 32]
-    p6 = [16,32,48]
-    p7 = [0]
+#else:
+p14 = [0.25, 0.75]
+p15 = [0.25, 0.75]
+p2 = [args.H]
+p3 = [0.5]
+p4 = [0.005]
+p5 = [args.bs]
+p6 = [args.H]
+p7 = [0]
     # p8 = [768] # no longer used
 
 #out_folder = os.path.join('..', args.bat + '_hpc_H=16')
 out_suffix = ''
-if args.big:
-    out_suffix += '_big'
+#if args.big:
+#    out_suffix += '_big'
 if args.q15:
     out_suffix += '_q15'
-out_file = os.path.join('..', args.bat + '_hpc_H=16', args.type + out_suffix + '.sh')
+out_file = os.path.join('..', args.bat + '_hpc_H=' + str(args.H), args.type + out_suffix + '.sh')
 
 
 def generate_trainstring(v):

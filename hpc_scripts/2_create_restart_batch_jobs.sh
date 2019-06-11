@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 ########################################################
 # Create SLURM batch jobs
 ########################################################
@@ -27,6 +28,26 @@ create_batch_pbs()
 }
 
 ########################################################
+# Create SLURM leftover jobs
+########################################################
+create_restart_jobs_slurm()
+{
+    dir=$(dirname "$1")
+    out_files=(`find $dir -name "*spl.out"`)
+
+    for file in ${out_files[@]}; do
+	wc_op=(`wc -l $file`)
+	left=$((12-${wc_op[0]}))
+	fname=${wc_op[1]}
+	if [ $left -gt 0 ]
+	then
+            sh_file=$(echo $(basename "$fname") | sed -e 's/spl.out/spl.sh/')
+            restart_file=$dir/$(echo $(basename "$fname") | sed -e 's/spl.out/restart_spl.sh/')
+
+            echo 'outname=`echo $0 | sed "s/.sh/.out/g"`' > ${restart_file}
+            tail -n $left ${sh_file} >> ${restart_file}
+	fi
+    done
 # Check number of args
 ########################################################
 if [ $# -ne 3 ]
@@ -35,6 +56,7 @@ then
     exit 1
 fi
 
+create_restart_jobs_slurm $1
 submit_file=$(dirname "$1")/3_SUBMIT_RESTART_$(basename "$1")jobs.sh
 
 if [ $3 = 'pbs' ]
