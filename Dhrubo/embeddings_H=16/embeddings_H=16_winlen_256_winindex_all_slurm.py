@@ -45,7 +45,7 @@ init_argv=sys.argv
 # Generate gridsearch
 print('###### hpc_scripts/gridsearch #####')
 sys.argv=init_argv+['-type', prefix, '-bat', bat_sys, '-base', base]
-import hpc_scripts.gridsearch_emiembeddings_H_16
+import hpc_scripts.gridsearch_emiembeddings
 
 # Rename file to avoid confusion, change prefix
 os.rename(jobfolder + 'embedding.sh', jobfolder + 'embedding_H=16_winlen=' + str(winlen) + '.sh')
