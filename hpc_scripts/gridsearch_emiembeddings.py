@@ -53,9 +53,29 @@ p7 = [0]
 out_suffix = ''
 #if args.big:
 #    out_suffix += '_big'
+
+emb_data_dir = args.base
+winlen = emb_data_dir.split('_')[3][-3:]
+
+if winlen == '256':
+    base_dir = '/scratch/dr2915/Bumblebee/bb_3class_winlen_256_winindex_all/'
+elif winlen == '384':
+    base_dir = '/scratch/dr2915/Bumblebee/bb_3class_winlen_384_winindex_all/'
+elif winlen == '512':
+    base_dir = '/scratch/dr2915/Bumblebee/bb_3class_winlen_512_winindex_all/'
+elif winlen == '640':
+    base_dir = '/scratch/dr2915/Bumblebee/bb_3class_winlen_640_winindex_all/'
+elif winlen == '768':
+    base_dir = '/scratch/dr2915/Bumblebee/bb_3class_winlen_768_winindex_all/'
+else:
+    print("Invalid window length!")
+    exit(0)
+
+print('Data Directory: ', base_dir+args.base)
+
 if args.q15:
     out_suffix += '_q15'
-out_file = os.path.join('..', args.bat + '_hpc_H=' + str(args.H), args.type + out_suffix + '.sh')
+out_file = os.path.join('..', args.bat + '_2class_hpc_H=' + str(args.H), args.type + '_' + winlen + out_suffix + '.sh')
 
 
 def generate_trainstring(v):
@@ -63,7 +83,7 @@ def generate_trainstring(v):
         v[0]) + " -gunl " + str(v[1]) + " -ur " + str(v[2]) + " -wr " + str(v[3]) + " -w " + str(
         v[4]) + " -sp " + str(v[5]) + " -lr " + str(v[6]) + " -bs " + str(v[7]) + " -hs " + str(
         v[8]) + " -ot " + str(v[9]) + " -type " + args.type + " -q15 " + str(
-        args.q15) + " -base " + args.base + " -out $outname"
+        args.q15) + " -base " + base_dir+args.base + " -out $outname"
 
     return res_str
 

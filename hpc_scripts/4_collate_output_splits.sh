@@ -14,11 +14,14 @@ fi
 infolder=$(dirname "$1")
 search_prefix=$(basename "$1")
 
+
 ########################################################
 # List output files
 ########################################################
 cd $infolder
 outfiles=`( ls $search_prefix*spl.out )`
+
+echo $outfiles
 
 ########################################################
 # Collate outputs
