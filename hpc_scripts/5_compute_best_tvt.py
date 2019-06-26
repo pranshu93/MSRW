@@ -8,7 +8,7 @@ filename = sys.argv[1]
 outfilename = sys.argv[2]
 
 df = pd.read_table(filename, header=None,
-                   names=['ggnl', 'gunl', 'ur', 'wr', 'w', 'sp', 'lr', 'bs', 'hs', 'ot', 'ml', 'Tr_Acc', 'Val_Acc', 'Acc'])
+                   names=['ggnl', 'gunl', 'ur', 'wr', 'w', 'sp', 'lr', 'bs', 'hs', 'ot', 'ml', 'Tr_Acc', 'Val_Acc', 'Acc', 'Recall1', 'Recall2'])
 
 # Only taking rows with valid accuracy
 df['Acc'].replace('', np.nan, inplace=True)
@@ -27,18 +27,18 @@ idx = df.loc[df['Acc'].idxmax()].tolist()
 
 print('Best Test accuracy:', str(max))
 print('Corresponding params')
-print("\t".join([str(i) for i in ['ggnl', 'gunl', 'ur', 'wr', 'w', 'sp', 'lr', 'bs', 'hs', 'ot', 'ml']]))
+print("\t".join([str(i) for i in ['ggnl', 'gunl', 'ur', 'wr', 'w', 'sp', 'lr', 'bs', 'hs', 'ot', 'ml', 'Tr_Acc', 'Val_Acc', 'Acc', 'Recall1', 'Recall2']]))
 print("\t".join([str(i) for i in idx]))
 
 # Create rerun string for best hyperparams
-param_str = ['-ggnl', '-gunl', '-ur', '-wr', '-w', '-sp', '-lr', '-bs', '-hs', '-ot', '-ml']
-print('Best hyperparam string')
-print(" ".join([str(item) for sublist in list(map(list,zip(param_str,idx))) for item in sublist]))
-
-# Get corresponding line in script file
-with open(os.path.join(os.path.dirname(filename), os.path.splitext(os.path.basename(filename))[0]+'.sh'), "r") as f:
-    for t in np.arange(df['Acc'].idxmax()+1):
-        f.readline()
-    with open(outfilename, "a") as o:
-        o.write(f.readline())
+# param_str = ['-ggnl', '-gunl', '-ur', '-wr', '-w', '-sp', '-lr', '-bs', '-hs', '-ot', '-ml']
+# print('Best hyperparam string')
+# print(" ".join([str(item) for sublist in list(map(list,zip(param_str,idx))) for item in sublist]))
+#
+# # Get corresponding line in script file
+# with open(os.path.join(os.path.dirname(filename), os.path.splitext(os.path.basename(filename))[0]+'.sh'), "r") as f:
+#     for t in np.arange(df['Acc'].idxmax()+1):
+#         f.readline()
+#     with open(outfilename, "a") as o:
+#         o.write(f.readline())
 
