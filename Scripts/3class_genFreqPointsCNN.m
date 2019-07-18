@@ -1,4 +1,4 @@
-function genFreqPointsCNN(prefix, basepath, folder_neg, folder_pos, outpath)
+function genFreqPointsCNN(prefix, basepath, folder_noise, folder_neg, folder_pos, outpath)
 %num = 1000;
 
     function train_row = getFreqData(fileName, path_dir)
@@ -50,9 +50,24 @@ remove_begin = 0;
 remove_last = remove_begin;
 total_remove = remove_begin + remove_last;
 
+data_noise = fullfile(basepath,folder_noise);
 data_neg = fullfile(basepath,folder_neg); %'C:\Users\Sangeeta\Desktop\MATLAB_Scripts\Data_Repository\Bike_Human\bikes_first_window_start'; % num2str(num)];
 data_pos = fullfile(basepath,folder_pos); %'C:\Users\Sangeeta\Desktop\MATLAB_Scripts\Data_Repository\Bike_Human\humans_first_window_start'; % num2str(num)];
 train_data = [];
+
+cd(data_noise);
+noiseFullNames=dir;
+noiseFiles={};  % first 2 file is '.' and '..'
+n = 1;
+
+for j=1:length(noiseFullNames)
+    s=noiseFullNames(j).name;
+    k=strfind(s,'.data');
+    if ~isempty(k) && k>=2 && k+4==length(s)
+        noiseFiles{n}=s(1:k-1);
+        n=n+1;
+    end
+end
 
 cd(data_neg);
 negFullNames=dir;
@@ -82,6 +97,7 @@ for j=1:length(posFullNames)
     end
 end
 
+countnoise = 0;
 countpos = 0;
 countneg = 0;
 

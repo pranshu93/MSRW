@@ -47,7 +47,7 @@ function genFreqPointsRNN(prefix, basepath, folder_neg, folder_pos, outpath, cut
 
 window = 256;
 remove = 0;
-remove_begin = 2;
+remove_begin = 0;
 remove_last = remove_begin;
 total_remove = remove_begin + remove_last;
 

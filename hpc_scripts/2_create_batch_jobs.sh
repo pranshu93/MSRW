@@ -8,7 +8,7 @@ create_batch_slurm()
     for file in $split_files
     do
         echo "sbatch -t $2 --export=filename=$file batch_job.sbatch"
-        echo sleep 1
+        echo sleep 30
     done
 }
 
@@ -22,7 +22,7 @@ create_batch_pbs()
     for file in $split_files
     do
         echo "qsub -V -l walltime=$2 -v filename=$file batch_job.pbs"
-        echo sleep 1
+        echo sleep 30
     done
 }
 
