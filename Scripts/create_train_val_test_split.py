@@ -17,7 +17,7 @@ parser.add_argument('-base', type=str, default='/mnt/6b93b438-a3d4-40d2-9f3d-d8c
                                                'Data/Bumblebee/Windowed/winlen_384_winindex_all',
                     help='Base location of data')
 parser.add_argument('-outdir', type=str, default=None, help='Output folder')
-parser.add_argument('-cldirs', type=list, default=['Human', 'Nonhuman'], help='Class folder paths relative to base')
+parser.add_argument('-cldirs', nargs='+', default=['Human', 'Bike'], help='Class folder paths relative to base')
 #parser.add_argument('-hum', type=str, default='Human', help='Human cuts folder relative to base')
 #parser.add_argument('-nhum', type=str, default='Nonhuman', help='Nonhuman cuts folder relative to base')
 parser.add_argument('-spl', type=float, default=0.2, help='Validation/test split')
@@ -34,6 +34,7 @@ os.makedirs(outdir, exist_ok=True)
 fileloc = args.base
 #filestrs = [args.hum, args.nhum]
 filestrs = args.cldirs
+print(filestrs)
 
 data = []
 labels = []

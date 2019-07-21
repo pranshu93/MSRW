@@ -5,7 +5,7 @@ import numpy as np
 import sys, os
 
 filename = sys.argv[1]
-outfilename = sys.argv[2]
+# outfilename = sys.argv[2]
 
 df = pd.read_table(filename, header=None,
                    names=['ggnl', 'gunl', 'ur', 'wr', 'w', 'sp', 'lr', 'bs', 'hs', 'ot', 'ml', 'Tr_Acc', 'Val_Acc', 'Acc', 'Recall1', 'Recall2'])
