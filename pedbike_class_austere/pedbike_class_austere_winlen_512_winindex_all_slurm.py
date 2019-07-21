@@ -5,7 +5,7 @@ sys.path.append('../../')
 
 ######################### ONLY MODIFY THESE VALUES #########################
 # Winlen
-winlen=384
+winlen=512
 
 # Script prefix
 prefix='pedbike_class_winlen_' + str(winlen) + '_winindex_all'

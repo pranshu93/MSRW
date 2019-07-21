@@ -5,7 +5,7 @@ sys.path.append('../../')
 
 ######################### ONLY MODIFY THESE VALUES #########################
 # Winlen
-winlen=256
+winlen=384
 
 # Script prefix
 prefix='pedbike_class_winlen_' + str(winlen) + '_winindex_all'
@@ -38,9 +38,9 @@ jobfolder = '../'+ bat_sys +'_hpc/'
 init_argv=sys.argv
 
 # Prepare data
-#print('###### Scripts/processing_data #####')
-#sys.argv=init_argv+['-type', prefix, '-base', base]
-#import Scripts.create_train_val_test_split
+# print('###### Scripts/create_train_val_test_split #####')
+# sys.argv=init_argv+['-type', prefix, '-base', base]
+# import Scripts.create_train_val_test_split
 
 # Generate gridsearch
 print('###### hpc_scripts/gridsearch #####')

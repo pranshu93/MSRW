@@ -4,18 +4,18 @@ import os
 sys.path.append('../../')
 
 ######################### ONLY MODIFY THESE VALUES #########################
-# Script prefix
-prefix='embedding'
-
 # Winlen
 winlen=256
 
+# Script prefix
+prefix='pedbike_class_winlen_' + str(winlen) + '_winindex_all'
+
 # Number of splits of hyperparam file
-num_splits='8'
+num_splits='32'
 
 # Base path of data
-base='/scratch/dr2915/Bumblebee/bb_3class_winlen_' + str(winlen) + '_winindex_all/' \
-     'HumanVsNonhuman_48_16/embedding_H=16_k=14_ep=10_it=10_rnd=10'
+base='/scratch/dr2915/austere/classification_data_windowed/winlen_' \
+     + str(winlen) + '_winindex_all/pedbike_class_winlen_' + str(winlen) + '_winindex_all'
 
 # Batch system
 bat_sys='slurm'
@@ -29,10 +29,10 @@ walltime='1-0'
 
 ######################### KEEP THE REST INTACT #########################
 # Enter hpc_scripts folder
-os.chdir('../../hpc_scripts')
+os.chdir('../hpc_scripts')
 
 # Folder where jobs are saved
-jobfolder = '../'+ bat_sys +'_hpc_H=16/'
+jobfolder = '../'+ bat_sys +'_hpc/'
 
 #Init args
 init_argv=sys.argv
@@ -45,11 +45,7 @@ init_argv=sys.argv
 # Generate gridsearch
 print('###### hpc_scripts/gridsearch #####')
 sys.argv=init_argv+['-type', prefix, '-bat', bat_sys, '-base', base]
-import hpc_scripts.gridsearch_emiembeddings
-
-# Rename file to avoid confusion, change prefix
-os.rename(jobfolder + 'embedding.sh', jobfolder + 'embedding_H=16_winlen=' + str(winlen) + '.sh')
-prefix='embedding_H=16_winlen=' + str(winlen)
+import hpc_scripts.gridsearch_0
 
 # Split hyperparam file
 print('###### hpc_scripts/split_hyp_wrapper #####')
@@ -62,4 +58,4 @@ sys.argv=init_argv+[jobfolder+prefix+'_',walltime,bat_sys]
 import hpc_scripts.create_batch_wrapper_2
 
 # Submit
-print("\nNow submit " + bat_sys + "_hpc/3_SUBMIT_"+prefix+"_jobs.sh on server")
+print("\nNow submit " + jobfolder + "3_SUBMIT_"+prefix+"_jobs.sh on server")
