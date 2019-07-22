@@ -5,6 +5,7 @@ source activate tfgpu
 list_files=(
             pedbike_class_winlen_256_winindex_all
             pedbike_class_winlen_384_winindex_all
+            pedbike_class_winlen_512_winindex_all
             )
 
 # outname=rerun_bb_tar_winindex_all.sh
