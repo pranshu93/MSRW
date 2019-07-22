@@ -13,10 +13,10 @@ list_files=(
 
 for l in ${list_files[@]}; do
     echo -e "\n\n-------------------- Processing $l ---------------------"
-    sh ../hpc_scripts/4_collate_output_splits.sh $l > $l.out
+    sh ../../hpc_scripts/4_collate_output_splits.sh $l > $l.out
 
     # python3 ../hpc_scripts/5_compute_best_tvt.py $l.out $outname
-    python3 ../hpc_scripts/5_compute_best_tvt.py $l.out
+    python3 ../../hpc_scripts/5_compute_best_tvt.py $l.out
 done
 
 # Change pbs data path to slurm

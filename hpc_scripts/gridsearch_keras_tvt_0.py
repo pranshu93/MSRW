@@ -24,21 +24,21 @@ out_file = os.path.join(out_folder, 'keras_' + args.pref + '.sh')
 hidden=[32,64, 128]
 epochs=[500]
 dropout_rate=[0.2,0.5,0.8]
-#learning_rate=[0.01,0.001]
-batch_size=[128,64]
-input_dim=[32, 64, 128]
+learning_rate=[0.01,0.001]
+batch_size=[128,64,32]
+input_dim=[32,64, 128, 256]
 
 # Create hyperparam combos
 def generate_trainstring(v):
     call_str = "python3 ../Architecture/keras_rnn_tvt.py -hs " + str(
         v[0]) + " -ep " + str(v[1]) + " -dr " + str(v[2]) + " -bs " + str(
-        v[3]) + " -w " + str(v[4])\
+        v[3]) + " -w " + str(v[4]) + " -lr " + str(v[5]) \
               + " -base " + args.base + " -pref " + args.pref + " -out $outname"
 
     return call_str
 
 pool = ThreadPool()
-hyperparams = list(itertools.product(hidden,epochs,dropout_rate,batch_size,input_dim))
+hyperparams = list(itertools.product(hidden,epochs,dropout_rate,batch_size,input_dim,learning_rate))
 results = pool.map(generate_trainstring, hyperparams)
 
 # Flatten
