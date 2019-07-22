@@ -14,10 +14,7 @@ from keras.layers import Reshape, Dropout #InputLayer
 from keras.layers.recurrent import LSTM, GRU
 import tensorflow as tf
 from keras import backend as K
-from keras.wrappers.scikit_learn import KerasClassifier
-from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import StratifiedKFold
-from sklearn.model_selection import cross_val_score
+from sklearn.metrics import recall_score
 
 tf.set_random_seed(42)
 #run_meta = tf.RunMetadata()
@@ -63,7 +60,7 @@ base_dir = args.base
 # Data prefix
 data_pref = args.pref
 # Num classes
-nb_classes = 3
+nb_classes = 2
 np.random.seed(42)  # for reproducibility
 input_dim = args.w
 hidden_units = args.hs  # 256
@@ -209,7 +206,14 @@ score, acc = model.evaluate(X_test, y_test)
 
 # Create result string
 results_list = [rnn, input_dim, hidden_units, dropout_rate, learning_rate, batch_size, opt_name, stacked, num_flops.total_float_ops, acc]
-# Print to output file
+
+# Append class recalls
+y_pred = np.argmax(model.predict(X_test),axis=1)
+recalls = recall_score(np.argmax(y_test, axis=1), y_pred, average=None)
+for r in recalls:
+    results_list.append(r)
+
+#Print to output file
 out_handle = open(out_fname, "a")
 # Write a line of output
 out_handle.write('\t'.join(map(str, results_list)) + '\n')
