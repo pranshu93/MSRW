@@ -111,11 +111,9 @@ print('MODEL PATH:', model_file)
 # Add diagnostic line
 print('OUTPUT FILENAME: ', out_fname)
 
-# Load data from file full prefix
-train_all=np.loadtxt(os.path.join(base_dir, data_pref + "_train.csv"), delimiter=",")
 # Get train data
-X_train = train_all[:,0:-1]
-y_train = train_all[:,-1]
+X_train = np.load(os.path.join(base_dir, data_pref + "_train.npy"))
+y_train = np.load(os.path.join(base_dir, data_pref + "_train_lbls.npy"))
 
 print('X_train shape:', X_train.shape)
 print('y_train shape:', y_train.shape)
@@ -126,10 +124,9 @@ std=np.std(X_train,0)
 std[std[:]<0.00001]=1
 X_train=(X_train-mean)/std
 
-val_all=np.loadtxt(os.path.join(base_dir, data_pref + "_val.csv"), delimiter=",")
 # Get val data
-X_val = val_all[:,0:-1]
-y_val = val_all[:,-1]
+X_val = np.load(os.path.join(base_dir, data_pref + "_val.npy"))
+y_val = np.load(os.path.join(base_dir, data_pref + "_val_lbls.npy"))
 
 print('X_val shape:', X_val.shape)
 print('y_val shape:', y_val.shape)
@@ -138,10 +135,9 @@ print('y_val shape:', y_val.shape)
 std[std[:]<0.00001]=1
 X_val=(X_val-mean)/std
 
-test_all=np.loadtxt(os.path.join(base_dir, data_pref + "_test.csv"), delimiter=",")
 # Get test data
-X_test = test_all[:,0:-1]
-y_test = test_all[:,-1]
+X_test = np.load(os.path.join(base_dir, data_pref + "_test.npy"))
+y_test = np.load(os.path.join(base_dir, data_pref + "_test_lbls.npy"))
 
 print('X_test shape:', X_test.shape)
 print('y_test shape:', y_test.shape)
