@@ -200,7 +200,8 @@ model, num_flops = create_model()
 model.summary()
 # Fit
 history = model.fit(X_train, y_train, batch_size=batch_size, epochs=nb_epochs, validation_data=(X_val, y_val),
-                    callbacks=[reduce_lr, early_stop, model_ckpt])
+                    callbacks=[reduce_lr, model_ckpt])
+#                    callbacks=[reduce_lr, early_stop, model_ckpt])
 
 score, acc = model.evaluate(X_test, y_test)
 
