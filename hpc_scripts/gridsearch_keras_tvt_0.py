@@ -6,7 +6,7 @@ import sys
 import os
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-pref', type=str, help='Prefix of data file (excluding _RNNspectrogram.csv)')
+parser.add_argument('-pref', type=str, help='Prefix of data file')
 parser.add_argument('-base', type=str, help='Base path of data')
 parser.add_argument('-bat', type=str, default='pbs', help='Batch system (pbs/slurm)')
 

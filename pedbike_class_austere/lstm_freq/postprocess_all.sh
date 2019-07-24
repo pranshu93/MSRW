@@ -3,9 +3,9 @@
 source activate tfgpu
 
 list_files=(
-            pedbike_class_winlen_256_winindex_all
-            pedbike_class_winlen_384_winindex_all
-            pedbike_class_winlen_512_winindex_all
+            keras_pedbike_class_winlen_256_winindex_all_freq
+            keras_pedbike_class_winlen_384_winindex_all_freq
+            keras_pedbike_class_winlen_512_winindex_all_freq
             )
 
 # outname=rerun_bb_tar_winindex_all.sh
@@ -16,7 +16,7 @@ for l in ${list_files[@]}; do
     sh ../hpc_scripts/4_collate_output_splits.sh $l > $l.out
 
     # python3 ../hpc_scripts/5_compute_best_tvt.py $l.out $outname
-    python3 ../hpc_scripts/5_compute_best_tvt.py $l.out
+    python3 ../hpc_scripts/5_compute_best_tvt_keras.py $l.out
 done
 
 # Change pbs data path to slurm
