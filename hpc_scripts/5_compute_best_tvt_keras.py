@@ -8,7 +8,7 @@ filename = sys.argv[1]
 # outfilename = sys.argv[2]
 
 df = pd.read_table(filename, header=None,
-                   names=['ggnl', 'gunl', 'ur', 'wr', 'w', 'sp', 'lr', 'bs', 'hs', 'ot', 'ml', 'Tr_Acc', 'Val_Acc', 'Acc', 'Recall1', 'Recall2'])
+                   names=['rnn', 'input_dim', 'hidden_units', 'dropout_rate', 'learning_rate', 'batch_size', 'opt_name', 'stacked', 'total_flops', 'Acc', 'Recall0', 'Recall1'])
 
 # Only taking rows with valid accuracy
 df['Acc'].replace('', np.nan, inplace=True)
@@ -27,7 +27,7 @@ idx = df.loc[df['Acc'].idxmax()].tolist()
 
 print('Best Test accuracy:', str(max))
 print('Corresponding params')
-print("\t".join([str(i) for i in ['ggnl', 'gunl', 'ur', 'wr', 'w', 'sp', 'lr', 'bs', 'hs', 'ot', 'ml', 'Tr_Acc', 'Val_Acc', 'Acc', 'Recall1', 'Recall2']]))
+print("\t".join([str(i) for i in ['rnn', 'input_dim', 'hidden_units', 'dropout_rate', 'learning_rate', 'batch_size', 'opt_name', 'stacked', 'total_flops', 'Acc', 'Recall0', 'Recall1']]))
 print("\t".join([str(i) for i in idx]))
 
 # Create rerun string for best hyperparams

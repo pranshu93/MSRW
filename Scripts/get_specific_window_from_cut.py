@@ -2,10 +2,10 @@ import numpy as np
 import os
 import glob
 import shutil
-from .helpermethods import Data2IQ
+from helpermethods import Data2IQ
 
 def extract_windows(indirs, outdir, class_label, stride, winlen,
-                    windows_all=False, get_window_position=0, samprate=256, minlen_secs=1):
+                    windows_all=True, get_window_position=0, samprate=256, minlen_secs=1):
     """
     Ref: https://github.com/dhruboroy29/MATLAB_Scripts/blob/neel/Scripts/extract_target_windows.m
     Extract sliding windows out of input data
@@ -128,87 +128,27 @@ def extract_windows(indirs, outdir, class_label, stride, winlen,
 
 # Test
 if __name__=='__main__':
-    outdir = '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Windowed'
+    outdir = '/scratch/dr2915/austere/classification_data_windowed'
 
-    ###################################################################################################
-    ####################################### BALANCED DATASETS #########################################
-    ###################################################################################################
+    for w in [384, 512]:
+        print('\tProcessing winlen ', w/256, ' secs')
+        print('----------------Human Austere Targets----------------')
+        # Bumblebee human cuts
+        extract_windows(indirs=[
+            '/scratch/dr2915/austere/final_human_full_cuts'
+        ],
+            outdir=outdir,
+            class_label='Human',
+            stride=w,
+            winlen=w)
 
-    print('----------------Human BumbleBee Targets (balanced)----------------')
-    # Bumblebee human cuts
-    extract_windows(indirs=[
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/arc_1 (Humans_Gym balls)/Human/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/bv_4 (Humans_Cars)/Human/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/ceiling_238_10 (Humans_Gym balls)/Human/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/combined_5 (Humans_Dogs)/11-30-2011/Human',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/combined_5 (Humans_Dogs)/Human/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/kh_3 (Humans_Gym balls)/Human/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/prb_2 (Humans_Gym balls)/Human/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/Parking garage orthogonal (Humans)/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/Parking garage radial (Humans)/'
-    ],
-        outdir=outdir,
-        class_label='Human',
-        stride=384,
-        winlen=384)
+        print('----------------Bike Austere Targets (radial)----------------')
+        # Bumblebee dog cuts
+        data_nonhumans = extract_windows(indirs=[
+            '/scratch/dr2915/austere/final_bike_radial_full_cuts'
+        ],
 
-    print('----------------Non-human BumbleBee Targets (balanced)----------------')
-    # Bumblebee dog cuts
-    data_nonhumans = extract_windows(indirs=[
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/arc_1 (Humans_Gym balls)/Ball/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/bv_4 (Humans_Cars)/Car/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/ceiling_238_10 (Humans_Gym balls)/Ball/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/combined_5 (Humans_Dogs)/Dog/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/kh_3 (Humans_Gym balls)/Dog/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/prb_2 (Humans_Gym balls)/Dog/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/osu_farm_meadow_may24-28_2016_subset_113 (Cattle)/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/Radar_site1_hilltop (Cattle)/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets/Radar_site2_creamery_subset_113 (Cattle)/'
-    ],
-
-        outdir=outdir,
-        class_label='Nonhuman',
-        stride=384,
-        winlen=384)
-    exit()
-
-    ###################################################################################################
-    ########################################### FULL DATASETS #########################################
-    ###################################################################################################
-
-    print('----------------Human BumbleBee Targets (full)----------------')
-    # Bumblebee human cuts
-    extract_windows(indirs=[
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/arc_1 (Humans_Gym balls)/Human/',
-    '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/bv_4 (Humans_Cars)/Human/',
-    '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/ceiling_238_10 (Humans_Gym balls)/Human/',
-    '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/combined_5 (Humans_Dogs)/11-30-2011/Human',
-    '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/combined_5 (Humans_Dogs)/Human/',
-    '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/kh_3 (Humans_Gym balls)/Human/',
-    '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/prb_2 (Humans_Gym balls)/Human/',
-    '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/Parking garage orthogonal (Humans)/',
-    '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/Parking garage radial (Humans)/'
-    ],
-        outdir=outdir,
-        class_label='Human',
-        stride=384,
-        winlen=384)
-
-    print('----------------Non-human BumbleBee Targets (full)----------------')
-    # Bumblebee dog cuts
-    data_nonhumans = extract_windows(indirs=[
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/arc_1 (Humans_Gym balls)/Ball/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/bv_4 (Humans_Cars)/Car/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/ceiling_238_10 (Humans_Gym balls)/Ball/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/combined_5 (Humans_Dogs)/Dog/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/kh_3 (Humans_Gym balls)/Dog/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/prb_2 (Humans_Gym balls)/Dog/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/osu_farm_meadow_may24-28_2016 (Cattle)/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/Radar_site1_hilltop (Cattle)/',
-        '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Deep_Learning_Radar/Data/Bumblebee/Targets_full/Radar_site2_creamery (Cattle)/'
-    ],
-
-        outdir=outdir,
-        class_label='Nonhuman',
-        stride=384,
-        winlen=384)
+            outdir=outdir,
+            class_label='Bike',
+            stride=w,
+            winlen=w)
