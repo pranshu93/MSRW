@@ -16,6 +16,10 @@ for data_dir in data_dirs:
     test = pd.read_csv(test_csv);
     val = pd.read_csv(val_csv);
 
+    train.sample(frac=1, random_state=42)
+    test.sample(frac=1, random_state=42)
+    val.sample(frac=1, random_state=42)
+
     X_train = (train.iloc[:,:train.shape[1]-1].values).astype('float32')
     Y_train = train.iloc[:,-1].values.astype('int32')
 

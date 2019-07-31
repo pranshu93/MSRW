@@ -6,14 +6,18 @@ data_dir = 'val';
 classes = {'Human', 'Bike'};
 
 dir_prefixes = {
+                '/scratch/sk7898/austere/classification_data_windowed/winlen_256_winindex_all/pedbike_class_winlen_256_winindex_all/',
+	        '/scratch/sk7898/austere/classification_data_windowed/winlen_384_winindex_all/pedbike_class_winlen_384_winindex_all/',
 	        '/scratch/sk7898/austere/classification_data_windowed/winlen_512_winindex_all/pedbike_class_winlen_512_winindex_all/',
                };
 
 prefixes = {
+            'pedbike_class_winlen_256_winindex_all_',
+            'pedbike_class_winlen_384_winindex_all_',
 	    'pedbike_class_winlen_512_winindex_all_',
             };
 
-windows = {512};
+windows = {256, 384, 512};
 
 for dataset=1:length(dir_prefixes)	      
   if strcmp(data_dir, 'train')
@@ -80,21 +84,20 @@ for dataset=1:length(dir_prefixes)
 
   cmag = cnn_data(:,1:window);
   cphi = cnn_data(:,window+1:window*2);
-  cmag = (cmag - (mean(mean(cmag)).*ones(size(cmag))))./1000;
-  cphi = (cphi - (mean(mean(cphi)).*ones(size(cphi))));
-  cmag = round(cmag .*100)./100;
-  cphi = round(cphi .*100)./100;
+  %%cmag = (cmag - (mean(mean(cmag)).*ones(size(cmag))))./1000;
+  %%cphi = (cphi - (mean(mean(cphi)).*ones(size(cphi))));
+  %%cmag = round(cmag .*100)./100;
+  %%cphi = round(cphi .*100)./100;
 
   cnn_datapoints = 0;
   for class=1:length(classes)
       cnn_datapoints = cnn_datapoints + class_count{class};
   end
 
-  fprintf('Generating labels for the dataset..............\n')
   labels = zeros(cnn_datapoints, 1);
   for class=2:length(classes)
       begin_idx = class_count{class} + 1;
-      if class == length(classes)
+  if class == length(classes)
 	  end_idx = cnn_datapoints;
       else
 	  end_idx = class_count{class} + class_count{class+1};
@@ -104,7 +107,6 @@ for dataset=1:length(dir_prefixes)
 
   fprintf('Concatenating data and labels.................\n')
   train = zeros(cnn_datapoints, window*2);
-  %%data = zeros(cnn_datapoints, window*2 + 1);
   train(:,1:2:(window*2)-1) = cmag;
   train(:,2:2:window*2) = cphi;
   data = horzcat(train, labels);

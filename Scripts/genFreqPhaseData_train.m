@@ -6,15 +6,18 @@ data_dir = 'train';
 classes = {'Human', 'Bike'};
 
 dir_prefixes = {
+                '/scratch/sk7898/austere/classification_data_windowed/winlen_256_winindex_all/pedbike_class_winlen_256_winindex_all/',
 	        '/scratch/sk7898/austere/classification_data_windowed/winlen_384_winindex_all/pedbike_class_winlen_384_winindex_all/',
 	        '/scratch/sk7898/austere/classification_data_windowed/winlen_512_winindex_all/pedbike_class_winlen_512_winindex_all/',
                };
 
-prefixes = {'pedbike_class_winlen_384_winindex_all_',
+prefixes = {
+            'pedbike_class_winlen_256_winindex_all_',
+            'pedbike_class_winlen_384_winindex_all_',
 	    'pedbike_class_winlen_512_winindex_all_',
             };
 
-windows = {384, 512};
+windows = {256, 384, 512};
 
 for dataset=1:length(dir_prefixes)	      
   if strcmp(data_dir, 'train')
@@ -81,10 +84,10 @@ for dataset=1:length(dir_prefixes)
 
   cmag = cnn_data(:,1:window);
   cphi = cnn_data(:,window+1:window*2);
-  cmag = (cmag - (mean(mean(cmag)).*ones(size(cmag))))./1000;
-  cphi = (cphi - (mean(mean(cphi)).*ones(size(cphi))));
-  cmag = round(cmag .*100)./100;
-  cphi = round(cphi .*100)./100;
+  %%cmag = (cmag - (mean(mean(cmag)).*ones(size(cmag))))./1000;
+  %%cphi = (cphi - (mean(mean(cphi)).*ones(size(cphi))));
+  %%cmag = round(cmag .*100)./100;
+  %%cphi = round(cphi .*100)./100;
 
   cnn_datapoints = 0;
   for class=1:length(classes)
