@@ -21,8 +21,6 @@ search_prefix=$(basename "$1")
 cd $infolder
 outfiles=`( ls $search_prefix*spl.out )`
 
-echo $outfiles
-
 ########################################################
 # Collate outputs
 ########################################################
