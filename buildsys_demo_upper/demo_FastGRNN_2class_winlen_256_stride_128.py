@@ -1,7 +1,7 @@
 import sys
 import os
 
-sys.path.append('../../')
+sys.path.append('../')
 
 ######################### ONLY MODIFY THESE VALUES #########################
 # Winlen
