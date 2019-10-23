@@ -65,7 +65,7 @@ X_train, X_val, y_train, y_val, indices_train, indices_val = train_test_split(X_
                                                   test_size=args.spl*(len(y_train)+len(y_test))/len(y_train), random_state=42)
 
 # Prefix
-prefix = args.type + '_' + os.path.basename(args.base)
+prefix = args.type# + '_' + os.path.basename(args.base)
 
 # Create output folder
 if not(os.path.exists(os.path.join(outdir, prefix))):
