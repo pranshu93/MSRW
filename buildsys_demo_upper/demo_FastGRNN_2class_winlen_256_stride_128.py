@@ -14,7 +14,7 @@ prefix='pedbike_upper'
 num_splits='32'
 
 # Base path of data
-base='/scratch/dr2915/austere/classification_data_windowed/winlen_' \
+base='/scratch/dr2915/austere/buildsys_demo/winlen_' \
      + str(winlen) + '_stride_128/' + prefix
 
 # Batch system
