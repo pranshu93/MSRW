@@ -8,14 +8,14 @@ sys.path.append('../../')
 winlen=256
 
 # Script prefix
-prefix='pedbike_class_winlen_' + str(winlen) + '_winindex_all'
+prefix='pedbike_upper'
 
 # Number of splits of hyperparam file
 num_splits='32'
 
 # Base path of data
 base='/scratch/dr2915/austere/classification_data_windowed/winlen_' \
-     + str(winlen) + '_winindex_all/pedbike_class_winlen_' + str(winlen) + '_winindex_all'
+     + str(winlen) + '_stride_128/' + prefix
 
 # Batch system
 bat_sys='slurm'
@@ -45,7 +45,7 @@ init_argv=sys.argv
 # Generate gridsearch
 print('###### hpc_scripts/gridsearch #####')
 sys.argv=init_argv+['-type', prefix, '-bat', bat_sys, '-base', base]
-import hpc_scripts.gridsearch_0
+import hpc_scripts.gridsearch_0_quantized
 
 # Split hyperparam file
 print('###### hpc_scripts/split_hyp_wrapper #####')
