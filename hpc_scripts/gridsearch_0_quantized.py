@@ -53,8 +53,7 @@ def generate_trainstring(v):
     res_str = "python3 ../Architecture/dynamic_rnn_tvt.py -ggnl " + str(
         v[0]) + " -gunl " + str(v[1]) + " -ur " + str(v[2]) + " -wr " + str(v[3]) + " -w " + str(
         v[4]) + " -sp " + str(v[5]) + " -lr " + str(v[6]) + " -bs " + str(v[7]) + " -hs " + str(
-        v[8]) + " -ot " + str(v[9]) + " -type " + args.type + " -q15 " + str(
-        args.q15) + " -base " + args.base + " -out $outname"
+        v[8]) + " -ot " + str(v[9]) + " -type " + args.type + " -base " + args.base + " -out $outname"
 
     return res_str
 
