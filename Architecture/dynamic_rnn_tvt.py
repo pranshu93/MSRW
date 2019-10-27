@@ -43,8 +43,7 @@ def main():
         parser.add_argument('-out', type=str, default=sys.stdout, help='Output filename')
         parser.add_argument('-type', type=str, default='tar', help='Classification type: \'tar\' for target,' \
                                                                    ' \'act\' for activity)')
-        parser.add_argument('-base', type=str, default='/fs/project/PAS1090/radar/Austere/Bora_New_Detector/',
-                            help='Base location of data')
+        parser.add_argument('-base', type=str, default='/fs/project/PAS1090/radar/Austere/Bora_New_Detector/', help='Base location of data')
         return parser.parse_args()
 
     args = getArgs()
@@ -56,7 +55,7 @@ def main():
         batchx = data[index];  batchy = labels[index]; batchz = data_seqlen[index]
         if(code):
             _, cur_loss=sess.run([train_op,loss_op], feed_dict={X: batchx, Y:batchy, seqlen: batchz, learning_rate: lr})
-            print('Cur loss: ', cur_loss)
+            #print('Cur loss: ', cur_loss)
         else: return(sess.run([accuracy, pred_labels], feed_dict={X: batchx, Y: batchy, seqlen: batchz, learning_rate: lr}))
 
     def dynamicRNN(x):
@@ -109,6 +108,7 @@ def main():
     fileloc = os.path.abspath(args.base)
     #tryloc = os.path.abspath('/home/cse/phd/anz178419/MSRW/Datasets/Austere/')
     #modelloc = "/scratch/cse/phd/anz178419/Models/MSRW/"
+    modelloc = os.path.abspath('../Models/')
 
     #cv_ind = args.fn
 
@@ -214,14 +214,15 @@ def main():
     saver = tf.train.Saver()
 
     val_acc = 0; test_acc=0; tr_acc=0; best_iter = 0; test_preds=[]
-
+    
+    '''
     for i in range(num_epochs):
-        print('Epoch num: ', i)
+        #print('Epoch num: ', i)
         num_iter = int(train_data.__len__()/batch_size)
         [forward_iter(train_data,train_labels,train_seqlen,slice(j*batch_size,(j+1)*batch_size),True) for j in range(num_iter)]
         forward_iter(train_data,train_labels,train_seqlen,slice(num_iter*batch_size,train_data.__len__()),True)
         [acc,_] = forward_iter(val_data, val_labels, val_seqlen, slice(0, val_data.__len__()), False)
-
+        print(i+1,acc)
         if(val_acc < acc):
             val_acc = acc
             # Get corresponding tr and test acc
@@ -230,15 +231,121 @@ def main():
 
         #if(max_try_acc < try_acc):	max_try_acc = try_acc
 
-            #saver.save(sess, modelloc + "bestmodel.ckpt")	
+            saver.save(sess, modelloc + "/bestmodel.ckpt")	
 
             #best_iter = i
         #print(i,tr_acc,acc,try_acc)
     #print(tr_acc, val_acc, test_acc)
+    '''
 
     # Create result string
-    results_list = [args.ggnl, args.gunl, args.ur, args.wr, args.w, args.sp, args.lr, args.bs, args.hs, args.ot,
-           max_length, tr_acc, val_acc, test_acc]
+    saver.restore(sess, modelloc + "/bestmodel.ckpt")
+    
+    variables_names = [v.name for v in tf.trainable_variables()]
+    values = sess.run(variables_names)
+    for k, v in zip(variables_names, values):
+        if(k.find("Variable:0") != -1):        
+            np.save(modelloc + '/' + "FC_Weight",v)
+        if(k.find("Variable_1:0") != -1):        
+            np.save(modelloc + '/' + "FC_Bias",v)
+        if(k.find("W1") != -1):        
+            np.save(modelloc + '/' + "W1",v)
+        if(k.find("W2") != -1):        
+            np.save(modelloc + '/' + "W2",v)
+        if(k.find("U1") != -1):        
+            np.save(modelloc + '/' + "U1",v)
+        if(k.find("U2") != -1):        
+            np.save(modelloc + '/' + "U2",v)
+        if(k.find("zeta") != -1):        
+            np.save(modelloc + '/' + "zeta",v)
+        if(k.find("nu") != -1):        
+            np.save(modelloc + '/' + "nu",v)
+        if(k.find("B_g") != -1):        
+            np.save(modelloc + '/' + "B_g",v)
+        if(k.find("B_h") != -1):        
+            np.save(modelloc + '/' + "B_h",v)
+
+    np.save(modelloc + '/' + "mean", mean)
+    np.save(modelloc + '/' + "std", std)
+
+    os.system("rm -r " + modelloc + "/QuantizedFastModel/")
+    os.system("python " + os.path.abspath('../../EdgeML/tf/examples/FastCells/quantizeFastModels.py') + " -dir " + modelloc)
+	
+   
+    '''    
+    qW1 = np.load(modelloc + "/W1.npy") 
+    qFC_Bias = np.load(modelloc + "/FC_Bias.npy") 
+    qW2 = np.load(modelloc + "/W2.npy") 
+    qU2 = np.load(modelloc + "/U2.npy") 
+    qFC_Weight = np.load(modelloc + "/FC_Weight.npy") 
+    qU1 = np.load(modelloc + "/U1.npy") 
+    qB_g = np.transpose(np.load(modelloc + "/B_g.npy")) 
+    qB_h = np.transpose(np.load(modelloc + "/B_h.npy"))
+    q = 1#np.load(modelloc + "/QuantizedFastModel/paramScaleFactor.npy")
+    '''
+   
+    
+    qW1 = np.load(modelloc + "/QuantizedFastModel/qW1.npy") 
+    qFC_Bias = np.load(modelloc + "/QuantizedFastModel/qFC_Bias.npy") 
+    qW2 = np.load(modelloc + "/QuantizedFastModel/qW2.npy") 
+    qU2 = np.load(modelloc + "/QuantizedFastModel/qU2.npy") 
+    qFC_Weight = np.load(modelloc + "/QuantizedFastModel/qFC_Weight.npy") 
+    qU1 = np.load(modelloc + "/QuantizedFastModel/qU1.npy") 
+    qB_g = np.transpose(np.load(modelloc + "/QuantizedFastModel/qB_g.npy"))     
+    qB_h = np.transpose(np.load(modelloc + "/QuantizedFastModel/qB_h.npy"))
+    q = np.load(modelloc + "/QuantizedFastModel/paramScaleFactor.npy")
+    
+    #print("qW1 = ", qW1)
+    zeta = np.load(modelloc + "/zeta.npy")
+    
+    zeta = 1/(1 + np.exp(-zeta))
+    #print("zeta = ",zeta)
+    nu = np.load(modelloc + "/nu.npy")
+    nu = 1/(1 + np.exp(-nu))
+    
+    
+    #I = 1
+
+    def quantTanh(x,scale):
+        return np.maximum(-scale,np.minimum(scale,x))
+
+    def quantSigm(x,scale):
+        return np.maximum(np.minimum(0.5*(x+scale),scale),0)
+
+    def nonlin(code,x,scale):
+        if(code == "t"): return quantTanh(x,scale)
+        elif(code == "s"): return quantSigm(x,scale)
+
+    fpt = int
+
+    def predict(points,lbls,I):
+        pred_lbls = []
+
+        for i in range(points.shape[0]):
+            h = np.array(np.zeros((hidden_dim,1)),dtype=fpt)
+            #print(h)
+            for t in range(seq_max_len):
+                x=np.array((I*(np.array(points[i][slice(t*stride,t*stride+window)])-fpt(mean)))/fpt(std),dtype=fpt).reshape((-1,1))
+                pre = np.array((np.matmul(np.transpose(qW2),np.matmul(np.transpose(qW1),x)) + np.matmul(np.transpose(qU2),np.matmul(np.transpose(qU1),h)))/(q*1),dtype=fpt)
+                h_ = np.array(nonlin("t",pre+qB_h*I,q*I)/(q),dtype=fpt)
+                z = np.array(nonlin("s",pre+qB_g*I,q*I)/(q),dtype=fpt)
+                h = np.array((np.multiply(z,h) + np.array(np.multiply(fpt(I*zeta)*(I-z)+fpt(I*nu)*I,h_)/I,dtype=fpt))/I,dtype=fpt)
+
+            pred_lbls.append(np.argmax(np.matmul(np.transpose(h),qFC_Weight) + qFC_Bias))
+        pred_lbls = np.array(pred_lbls)
+        #print(lbls)
+        #print(pred_lbls)
+        print(float((pred_lbls==lbls).sum())/lbls.shape[0])
+#np.save(modelloc + '/' + k.replace('/','_'),v)
+#print ("Variable: ", k)
+#print ("Shape: ", v.shape)
+#print (formatp(v))
+    
+    for I in range(10):
+        predict(val_cuts,val_cuts_lbls,pow(10,I))
+
+
+    results_list = [args.ggnl, args.gunl, args.ur, args.wr, args.w, args.sp, args.lr, args.bs, args.hs, args.ot, max_length, tr_acc, val_acc, test_acc]
 
     # Print confusion matrix
     print('\t'.join(map(str, results_list)) + '\n')

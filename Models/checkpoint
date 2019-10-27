@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/pranshu/MSRW/Models/bestmodel.ckpt"
+all_model_checkpoint_paths: "/home/pranshu/MSRW/Models/bestmodel.ckpt"
