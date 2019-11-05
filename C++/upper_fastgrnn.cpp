@@ -115,12 +115,6 @@ void util_printMatrix(uint* mat, int row_len, int col_len){
 }
 #endif
 
-// Extract instance
-void extract_instance(uint* src, uint*dst, int row_start, int row_end, int vec_len){
-	for(int t=0, k=row_start * vec_len; k < row_end * vec_len; t++, k++)
-		*(dst+t) = *(src + k);
-}
-
 // Matrix slice utils
 void util_slice2D(uint* src, uint*dst, int row_index, int vec_len){
 	for(int j=0; j < vec_len; j++)
@@ -145,7 +139,7 @@ string strBuild(ll i, char delim)
 }
 #endif
 
-inline int emi_rnn(uint* test_input){	
+inline int upper_fastgrnn(uint* test_input){	
 	ll h[hiddenDims_u] = {0};
 	ll out_wRank_u[wRank_u] = {0};
 	ll out_uRank_u[uRank_u] = {0};
@@ -251,36 +245,22 @@ inline int emi_rnn(uint* test_input){
 #endif
 }
 
-/*bool emi_driver(uint* data){
+bool fastgrnn_driver(uint* data){
 	// Reshape data
 	//int (&data2D)[orig_num_steps][inputDims_u] = *reinterpret_cast<int (*)[orig_num_steps][inputDims_u]>(&data);
-	int maxconsectargets = 0;
-	bool detect_in_bag = false;
-	// Create instances and run EMI
-	for(int start = 0, i=0; i<numInstances; start += instStride, i++){
-		int end;
-		if(i==numInstances-1)
-			// Correction for last iteration
-			end = orig_num_steps;
-		else
-			end = start + timeSteps;
 
-		uint next_inst[timeSteps][inputDims_u] = {0};
-		extract_instance(data, (uint*)next_inst, start, end, inputDims_u);
-		
-		// Call emi_rnn
-		int inst_dec = emi_rnn((uint*)next_inst);
-		//hal_printf("%d", inst_dec);
-		// Bag-level detection logic
-		if(inst_dec==0)
-			maxconsectargets = 0;
-		else
-			maxconsectargets++;
-		if(maxconsectargets>=k)
-			return true;
-	}
-	return false;
-}*/
+	uint strided_data[timeSteps_u*inputDims_u];
+	// Create strides
+	for(int dest_index=0, src_index=0, i=0; i<timeSteps_u; dest_index += inputDims_u, src_index += stride_u, i++)
+		copy(data + src_index, data + src_index + inputDims_u, strided_data + dest_index);
+
+	// Call upper_fastgrnn
+	int dec = upper_fastgrnn((uint*)strided_data);
+	if(dec==0)
+		return true;
+	else
+		return false;
+}
 
 void run_test(){
 	int size = sizeof(qW1_transp_u) + sizeof(qFC_Bias_u) + sizeof(qW2_transp_u) + sizeof(qU2_transp_u) + sizeof(qFC_Weight_u) + sizeof(qU1_transp_u) + sizeof(qB_g_u) + sizeof(qB_h_u) + sizeof(q_u) + sizeof(I_u) + sizeof(mean_u) + sizeof(stdev_u) + sizeof(I_u_vec) + sizeof(q_times_I_u) + sizeof(I_squared_times_nu_u_vec) + sizeof(I_times_zeta_u);
@@ -310,8 +290,8 @@ void run_test(){
 #ifdef DBG
 		util_printMatrix((uint*) test_input, timeSteps, inputDims_u);
 #endif
-		// Call emi_rnn
-		emi_rnn((uint*)test_input);
+		// Call upper_fastgrnn
+		upper_fastgrnn((uint*)test_input);
 
 #ifdef MOTE_PROFILE
 		if(d%numInstances==numInstances-1)
