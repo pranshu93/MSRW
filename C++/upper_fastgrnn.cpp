@@ -283,8 +283,7 @@ void run_test(){
 
 #ifdef MOTE_PROFILE
 		// Profile latency per bag (second in V1)
-		if(d%numInstances==0)
-			CPU_GPIO_SetPinState(1, true);
+		CPU_GPIO_SetPinState(1, true);
 #endif
 
 #ifdef DBG
@@ -294,8 +293,7 @@ void run_test(){
 		upper_fastgrnn((uint*)test_input);
 
 #ifdef MOTE_PROFILE
-		if(d%numInstances==numInstances-1)
-			CPU_GPIO_SetPinState(1, false);
+		CPU_GPIO_SetPinState(1, false);
 #endif
 	}
 #ifndef MOTE
