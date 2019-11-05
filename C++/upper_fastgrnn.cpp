@@ -118,12 +118,6 @@ inline int upper_fastgrnn(uint* test_input){
 	cout << "Classification output:" << endl;
 	util_printVec(out_numClasses_u, numClasses_u);
 #endif
-#ifdef MOTE
-	if(out_numClasses_u[0]>out_numClasses_u[1])
-		return 0;
-	else
-		return 1;
-#endif
 #ifndef MOTE
 	//Print decision to csv file
 	string outstr;
@@ -132,6 +126,10 @@ inline int upper_fastgrnn(uint* test_input){
 	outstr += strBuild(out_numClasses_u[numClasses_u -1], '\n');
 	outfile << outstr;
 #endif
+	if(out_numClasses_u[0]>out_numClasses_u[1])
+		return 0;
+	else
+		return 1;
 }
 
 bool fastgrnn_driver(uint* data){
