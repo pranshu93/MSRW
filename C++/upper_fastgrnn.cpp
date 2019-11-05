@@ -276,10 +276,10 @@ void run_test(){
 	// Initialize output file
 	outfile.open("out_c++.csv");
 #endif
-	for(int d=0; d < numData; d ++)
+	for(int d=0; d < numData_u; d ++)
 	{
 		uint test_input[timeSteps_u][inputDims_u] = {0};
-		util_slice3D((uint*) test_inputs, (uint*) test_input, d, timeSteps_u, inputDims_u);
+		util_slice3D((uint*) test_inputs_u, (uint*) test_input, d, timeSteps_u, inputDims_u);
 
 #ifdef MOTE_PROFILE
 		// Profile latency per bag (second in V1)
