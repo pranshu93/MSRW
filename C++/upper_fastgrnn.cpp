@@ -283,9 +283,9 @@ inline int emi_rnn(uint* test_input){
 }*/
 
 void run_test(){
-	int size = sizeof(qW1_transp_u) + sizeof(qFC_Bias_u) + sizeof(qW2_transp_u) + sizeof(qU2_transp_u) + sizeof(qFC_Weight_u) + sizeof(qU1_transp_u) + sizeof(qB_g_u) + sizeof(qB_h_u) + sizeof(q_u) + sizeof(I_u) + sizeof(mean_u) + sizeof(stdev_u) + sizeof(I_u_vec) + sizeof(q_times_I_u);
+	int size = sizeof(qW1_transp_u) + sizeof(qFC_Bias_u) + sizeof(qW2_transp_u) + sizeof(qU2_transp_u) + sizeof(qFC_Weight_u) + sizeof(qU1_transp_u) + sizeof(qB_g_u) + sizeof(qB_h_u) + sizeof(q_u) + sizeof(I_u) + sizeof(mean_u) + sizeof(stdev_u) + sizeof(I_u_vec) + sizeof(q_times_I_u) + sizeof(I_squared_times_nu_u_vec) + sizeof(I_times_zeta_u);
 	
-#ifdef DBG
+#ifndef MOTE
 	cout << "Model size: " << size/1000 << " KB" << endl << endl;
 #endif
 #ifdef MOTE_PROFILE
