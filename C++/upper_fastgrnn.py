@@ -1,4 +1,5 @@
 import sys
+sys.path.insert(0, './')
 from Architecture.utils import getConfusionMatrix, printFormattedConfusionMatrix, getPrecisionRecall
 
 import numpy as np
