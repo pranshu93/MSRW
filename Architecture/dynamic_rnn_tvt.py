@@ -168,7 +168,10 @@ def main():
 
     lr = args.lr
 
-    num_epochs = 500
+    if args.reg:
+        num_epochs = 1000
+    else:
+        num_epochs = 500
     batch_size = args.bs
 
     hidden_dim = args.hs
