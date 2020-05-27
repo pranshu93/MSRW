@@ -36,6 +36,7 @@ def main():
         parser.add_argument('-lr', type=float, default=0.01, help='Learning Rate of Optimisation')
         parser.add_argument('-bs', type=int, default=128, help='Batch Size of Optimisation')
         parser.add_argument('-hs', type=int, default=16, help='Hidden Layer Size')
+        parser.add_argument('-reg', type=int, default=0, help='Is this a regression task? 1 (True), default 0 (False)')
         parser.add_argument('-ot', type=int, default=1, help='Adam(False)/Momentum(True)')
         parser.add_argument('-ml', type=int, default=768, help='Maximum slice length of cut taken for classification')
         #parser.add_argument('-fn', type=int, default=3, help='Fold Number to classify for cross validation[1/2/3/4/5]')
@@ -57,7 +58,7 @@ def main():
         if(code):
             _, cur_loss=sess.run([train_op,loss_op], feed_dict={X: batchx, Y:batchy, seqlen: batchz, learning_rate: lr})
             print('Cur loss: ', cur_loss)
-        else: return(sess.run([accuracy, pred_labels], feed_dict={X: batchx, Y: batchy, seqlen: batchz, learning_rate: lr}))
+        else: return(sess.run([accuracy, predictions], feed_dict={X: batchx, Y: batchy, seqlen: batchz, learning_rate: lr}))
 
     def dynamicRNN(x):
         x = tf.unstack(x, seq_max_len, 1)
@@ -146,7 +147,7 @@ def main():
 
     #seq_max_len = int(np.floor(float(max_length-window)/stride)+1)
     # TODO: Undo hack to improve accuracy
-    seq_max_len = int(np.floor(float(max_length - window) / stride))
+    seq_max_len = int(np.floor(float(max_length - window) / stride)+1)
 
     all_cuts = []; [all_cuts.extend(train_cuts[i]) for i in range(train_cuts.shape[0])];
     mean = np.mean(np.array(all_cuts)); std = np.std(np.array(all_cuts));
@@ -194,18 +195,25 @@ def main():
 
     logits = dynamicRNN(X)
 
-    prediction = tf.nn.softmax(logits)
-    pred_labels = tf.argmax(prediction, 1)
+    if args.reg:
+        predictions = logits
+    else:
+        predictions = tf.argmax(tf.nn.softmax(logits), 1)
 
-    loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=Y))
+    if args.reg:
+        loss_op = tf.reduce_mean(tf.keras.losses.MSE(logits=logits, labels=Y))
+    else:
+        loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=Y))
     if(args.ot):
         optimizer = tf.train.MomentumOptimizer(learning_rate=learning_rate,momentum=0.9,use_nesterov=True) 
     else:
         optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
     train_op = optimizer.minimize(loss_op)
 
-    correct_pred = tf.equal(pred_labels, tf.argmax(Y,1))
-    accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+    if args.reg:
+        accuracy = tf.sqrt(tf.reduce_mean(tf.cast(tf.keras.losses.MSE(predictions, Y), tf.float32)))
+    else:
+        accuracy = tf.reduce_mean(tf.cast(tf.equal(predictions, tf.argmax(Y, 1)), tf.float32))
 
     #sess = tf.InteractiveSession(config=config)
     sess = tf.InteractiveSession()
