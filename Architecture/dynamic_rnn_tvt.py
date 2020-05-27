@@ -214,7 +214,7 @@ def main():
     train_op = optimizer.minimize(loss_op)
 
     if args.reg:
-        accuracy = tf.sqrt(tf.reduce_mean(tf.cast(tf.keras.losses.MSE(predictions, Y), tf.float32)))
+        accuracy = [tf.sqrt(tf.reduce_mean(tf.cast(tf.keras.losses.MSE(predictions, Y), tf.float32))), tf.sqrt(tf.reduce_mean(tf.cast(tf.keras.losses.MeanAbsoluteError(predictions, Y), tf.float32)))]
     else:
         accuracy = tf.reduce_mean(tf.cast(tf.equal(predictions, tf.argmax(Y, 1)), tf.float32))
 
