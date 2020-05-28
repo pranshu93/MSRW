@@ -1,4 +1,7 @@
 from __future__ import print_function
+
+import glob
+
 import numpy as np
 import tensorflow as tf
 import random
@@ -22,6 +25,17 @@ config.gpu_options.allow_growth = True
 np.random.seed(42)
 tf.set_random_seed(42)
 
+# R-squared regression metric: https://www.kaggle.com/rohumca/linear-regression-in-tensorflow
+def R_squared(y, y_pred):
+    '''
+    R_squared computes the coefficient of determination.
+    It is a measure of how well the observed outcomes are replicated by the model.
+    '''
+    residual = tf.reduce_sum(tf.square(tf.subtract(y, y_pred)))
+    total = tf.reduce_sum(tf.square(tf.subtract(y, tf.reduce_mean(y))))
+    r2 = tf.subtract(1.0, tf.div(residual, total))
+    return r2
+
 def main():
     def getArgs():
         parser = argparse.ArgumentParser(description='HyperParameters for Dynamic RNN Algorithm')
@@ -33,11 +47,12 @@ def main():
         parser.add_argument('-wr', type=float, default=None, help='Rank of W matrix')
         parser.add_argument('-w', type=int, default=32, help='Window Length')
         parser.add_argument('-sp', type=float, default=0.5, help='Stride as % of Window Length(0.25/0.5/0.75/1)')
-        parser.add_argument('-lr', type=float, default=0.01, help='Learning Rate of Optimisation')
+        parser.add_argument('-lr', type=float, default=0.001, help='Learning Rate of Optimisation')
         parser.add_argument('-bs', type=int, default=128, help='Batch Size of Optimisation')
         parser.add_argument('-hs', type=int, default=64, help='Hidden Layer Size')
         parser.add_argument('-reg', type=int, default=0, help='Is this a regression task? 1 (True), default 0 (False)')
         parser.add_argument('-ot', type=int, default=0, help='Adam(False)/Momentum(True)')
+        parser.add_argument('-verbose', type=int, default=0, help='Verbose? Default: 0')
         parser.add_argument('-ml', type=int, default=768, help='Maximum slice length of cut taken for classification')
         #parser.add_argument('-fn', type=int, default=3, help='Fold Number to classify for cross validation[1/2/3/4/5]')
         parser.add_argument('-q15', type=ast.literal_eval, default=False, help='Represent input as Q15?')
@@ -57,8 +72,11 @@ def main():
         batchx = data[index];  batchy = labels[index]; batchz = data_seqlen[index]
         if(code):
             _, cur_loss=sess.run([train_op,loss_op], feed_dict={X: batchx, Y:batchy, seqlen: batchz, learning_rate: lr})
-            print('Cur loss: ', cur_loss)
-        else: return(sess.run([accuracy, predictions], feed_dict={X: batchx, Y: batchy, seqlen: batchz, learning_rate: lr}))
+            if args.verbose:
+                print('Cur loss: ', cur_loss)
+        else:
+            acc, preds = sess.run([accuracy, predictions], feed_dict={X: batchx, Y: batchy, seqlen: batchz, learning_rate: lr})
+            return acc, preds
 
     def dynamicRNN(x):
         x = tf.unstack(x, seq_max_len, 1)
@@ -135,7 +153,6 @@ def main():
 
     test_cuts = np.load(os.path.join(fileloc, args.type + "_test.npy"))
     test_cuts_lbls = np.load(os.path.join(fileloc, args.type + "_test_lbls.npy"))
-
 
     #max_length = 0;
     #cut_lengths = []
@@ -221,8 +238,9 @@ def main():
     train_op = optimizer.minimize(loss_op)
 
     if args.reg:
-        accuracy = [tf.sqrt(tf.reduce_mean(tf.cast(tf.keras.losses.MSE(y_pred=predictions, y_true=Y), tf.float32))),
-                    tf.sqrt(tf.reduce_mean(tf.cast(tf.keras.losses.MAE(y_pred=predictions, y_true=Y), tf.float32)))]
+        accuracy = [tf.reduce_mean(tf.cast(tf.keras.losses.MSE(y_pred=predictions, y_true=Y), tf.float32)),
+                    tf.cast(R_squared(y_pred=predictions, y=Y), tf.float32),
+                    tf.reduce_mean(tf.cast(tf.keras.losses.MAE(y_pred=predictions, y_true=Y), tf.float32))]
     else:
         accuracy = tf.reduce_mean(tf.cast(tf.equal(predictions, tf.argmax(Y, 1)), tf.float32))
 
@@ -233,8 +251,21 @@ def main():
     saver = tf.train.Saver()
 
     if args.reg:
-        val_acc = test_acc = tr_acc = [0, 0]
-        best_iter = 0
+        val_acc = [999, 999]
+        test_acc = [999, 999]
+        tr_acc = [999, 999]
+
+        tr_mse_list = []
+        tr_r2_list = []
+        tr_mae_list = []
+
+        val_mse_list = []
+        val_r2_list = []
+        val_mae_list = []
+        test_mse_list = []
+        test_r2_list = []
+        test_mae_list = []
+
     else:
         val_acc = 0; test_acc=0; tr_acc=0; best_iter = 0
 
@@ -247,11 +278,36 @@ def main():
         forward_iter(train_data,train_labels,train_seqlen,slice(num_iter*batch_size,train_data.__len__()),True)
         [acc,_] = forward_iter(val_data, val_labels, val_seqlen, slice(0, val_data.__len__()), False)
 
-        if(val_acc < acc):
+        if args.reg:
+            new_val_acc = True #val_acc[0] > acc[0]
+        else:
+            new_val_acc = val_acc < acc
+
+        if(new_val_acc):
             val_acc = acc
             # Get corresponding tr and test acc
             [tr_acc,_] = forward_iter(train_data,train_labels,train_seqlen,slice(0,train_data.__len__()),False)
             [test_acc, test_preds] = forward_iter(test_data, test_labels, test_seqlen, slice(0, test_data.__len__()), False)
+
+        if args.reg:
+            print('Training loss: {} | Training R^2: {} | Training MAE: {}\n'
+                  'Validation loss: {} | Validation R^2: {}| Validation MAE: {}\n'
+                  'Test loss: {} | Test R^2: {}| Test MAE: {}'
+                  .format(tr_acc[0], tr_acc[1], tr_acc[2],
+                          val_acc[0], val_acc[1], val_acc[2],
+                          test_acc[0], test_acc[1], test_acc[2]))
+
+            tr_mse_list.append(tr_acc[0])
+            tr_r2_list.append(tr_acc[1])
+            tr_mae_list.append(tr_acc[2])
+
+            val_mse_list.append(val_acc[0])
+            val_r2_list.append(val_acc[1])
+            val_mae_list.append(val_acc[2])
+
+            test_mse_list.append(test_acc[0])
+            test_r2_list.append(test_acc[1])
+            test_mae_list.append(test_acc[2])
 
         #if(max_try_acc < try_acc):	max_try_acc = try_acc
 
@@ -262,27 +318,58 @@ def main():
     #print(tr_acc, val_acc, test_acc)
 
     # Create result string
-    results_list = [args.ggnl, args.gunl, args.ur, args.wr, args.w, args.sp, args.lr, args.bs, args.hs, args.ot,
-           max_length, tr_acc, val_acc, test_acc]
+    if args.reg:
+        # Delete previous output files
+        to_remove = glob.glob(os.path.join(args.out, "regtest_winlen=" + str(max_length//2) + "_*.csv"))
+        for f in to_remove:
+            os.remove(f)
 
-    # Print confusion matrix
-    print('\t'.join(map(str, results_list)) + '\n')
-    confmatrix = getConfusionMatrix(test_preds, test_cuts_lbls, num_classes)
-    printFormattedConfusionMatrix(confmatrix)
+        # Print MSEs
+        out_handle = open(os.path.join(args.out, "regtest_winlen=" + str(max_length//2) + "_MSE.csv"), "a")
 
-    # Get class recalls
-    recalllist = np.sum(confmatrix, axis=0)
-    recalllist = [confmatrix[i][i] / x if x !=
-                                          0 else -1 for i, x in enumerate(recalllist)]
+        # Write a line of output
+        out_handle.write('\t'.join(map(str, tr_mse_list)) + '\n')
+        out_handle.write('\t'.join(map(str, val_mse_list)) + '\n')
+        out_handle.write('\t'.join(map(str, test_mse_list)) + '\n')
+        out_handle.close()
 
-    for recall in recalllist:
-        results_list.append(recall)
+        # Print R2s
+        out_handle = open(os.path.join(args.out, "regtest_winlen=" + str(max_length // 2) + "_R2.csv"), "a")
+        # Write a line of output
+        out_handle.write('\t'.join(map(str, tr_r2_list)) + '\n')
+        out_handle.write('\t'.join(map(str, val_r2_list)) + '\n')
+        out_handle.write('\t'.join(map(str, test_r2_list)) + '\n')
+        out_handle.close()
 
-    # Print to output file
-    out_handle = open(args.out, "a")
-    # Write a line of output
-    out_handle.write('\t'.join(map(str, results_list)) + '\n')
-    out_handle.close()
+        # Print MAEs
+        out_handle = open(os.path.join(args.out, "regtest_winlen=" + str(max_length // 2) + "_MAE.csv"), "a")
+        # Write a line of output
+        out_handle.write('\t'.join(map(str, tr_mae_list)) + '\n')
+        out_handle.write('\t'.join(map(str, val_mae_list)) + '\n')
+        out_handle.write('\t'.join(map(str, test_mae_list)) + '\n')
+        out_handle.close()
+    else:
+        results_list = [args.ggnl, args.gunl, args.ur, args.wr, args.w, args.sp, args.lr, args.bs, args.hs, args.ot,
+               max_length, tr_acc, val_acc, test_acc]
+
+        # Print confusion matrix
+        print('\t'.join(map(str, results_list)) + '\n')
+        confmatrix = getConfusionMatrix(test_preds, test_cuts_lbls, num_classes)
+        printFormattedConfusionMatrix(confmatrix)
+
+        # Get class recalls
+        recalllist = np.sum(confmatrix, axis=0)
+        recalllist = [confmatrix[i][i] / x if x !=
+                                              0 else -1 for i, x in enumerate(recalllist)]
+
+        for recall in recalllist:
+            results_list.append(recall)
+
+        # Print to output file
+        out_handle = open(args.out, "a")
+        # Write a line of output
+        out_handle.write('\t'.join(map(str, results_list)) + '\n')
+        out_handle.close()
 
     '''
     saver.restore(sess, modelloc + "bestmodel.ckpt")
