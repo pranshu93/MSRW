@@ -26,7 +26,7 @@ data_dir = '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Robust_Learning/D
 label_dir = '/mnt/6b93b438-a3d4-40d2-9f3d-d8cdbb850183/Research/Robust_Learning/IIITDemo/Arff/Roy.174'
 winlens = [256, 384, 512]
 type = 'bb_regtest'
-
+y_dim = 16 # Regression output dimension
 tvt_indices = {'train': '1', 'val': '2', 'test': '3'}
 
 for win in winlens:
@@ -47,7 +47,7 @@ for win in winlens:
         print('Processing regression (y) file:', os.path.basename(label_file))
         df = pandas.read_csv(label_file)
         # Drop last (class label) column
-        df = df.iloc[:, :-1]
+        df = df.iloc[:, :y_dim]
         # Handle ? in data
         df.replace(to_replace='?', value=0, inplace=True)
 
