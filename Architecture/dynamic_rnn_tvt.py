@@ -35,9 +35,9 @@ def main():
         parser.add_argument('-sp', type=float, default=0.5, help='Stride as % of Window Length(0.25/0.5/0.75/1)')
         parser.add_argument('-lr', type=float, default=0.01, help='Learning Rate of Optimisation')
         parser.add_argument('-bs', type=int, default=128, help='Batch Size of Optimisation')
-        parser.add_argument('-hs', type=int, default=16, help='Hidden Layer Size')
+        parser.add_argument('-hs', type=int, default=64, help='Hidden Layer Size')
         parser.add_argument('-reg', type=int, default=0, help='Is this a regression task? 1 (True), default 0 (False)')
-        parser.add_argument('-ot', type=int, default=1, help='Adam(False)/Momentum(True)')
+        parser.add_argument('-ot', type=int, default=0, help='Adam(False)/Momentum(True)')
         parser.add_argument('-ml', type=int, default=768, help='Maximum slice length of cut taken for classification')
         #parser.add_argument('-fn', type=int, default=3, help='Fold Number to classify for cross validation[1/2/3/4/5]')
         parser.add_argument('-q15', type=ast.literal_eval, default=False, help='Represent input as Q15?')
@@ -88,7 +88,10 @@ def main():
 
     def process(data,labels):
         cr_data = np.zeros((data.__len__(),seq_max_len,window)); cr_seqlen = [];
-        cr_labels = np.zeros((data.__len__(), num_classes)); cr_labels[np.arange(data.__len__()),np.array(labels.tolist(),dtype=int)] = 1;
+        if args.reg:
+            cr_labels = labels
+        else:
+            cr_labels = np.zeros((data.__len__(), num_classes)); cr_labels[np.arange(data.__len__()),np.array(labels.tolist(),dtype=int)] = 1;
         for i in range(data.__len__()):
             num_iter = min(int(np.ceil(float(data[i].__len__()-window)/stride)),seq_max_len)
             st = 0 #int((int(np.ceil(float(data[i].__len__()-window)/stride))-num_iter) * 0.5)
@@ -175,8 +178,12 @@ def main():
     batch_size = args.bs
 
     hidden_dim = args.hs
-    num_classes = len(np.unique(train_cuts_lbls))
-    print('Num classes: {}'.format(num_classes))
+    if args.reg:
+        num_classes = args.hs
+        print('Regression vector is of length: {}'.format(num_classes))
+    else:
+        num_classes = len(np.unique(train_cuts_lbls))
+        print('Num classes: {}'.format(num_classes))
 
     train_data, train_labels, train_seqlen = process(train_cuts_n,train_cuts_lbls)
     test_data, test_labels, test_seqlen = process(test_cuts_n,test_cuts_lbls)
@@ -204,7 +211,7 @@ def main():
         predictions = tf.argmax(tf.nn.softmax(logits), 1)
 
     if args.reg:
-        loss_op = tf.reduce_mean(tf.keras.losses.MSE(logits=logits, labels=Y))
+        loss_op = tf.reduce_mean(tf.keras.losses.MSE(y_pred=logits, y_true=Y))
     else:
         loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=Y))
     if(args.ot):
@@ -214,7 +221,8 @@ def main():
     train_op = optimizer.minimize(loss_op)
 
     if args.reg:
-        accuracy = [tf.sqrt(tf.reduce_mean(tf.cast(tf.keras.losses.MSE(predictions, Y), tf.float32))), tf.sqrt(tf.reduce_mean(tf.cast(tf.keras.losses.MeanAbsoluteError(predictions, Y), tf.float32)))]
+        accuracy = [tf.sqrt(tf.reduce_mean(tf.cast(tf.keras.losses.MSE(y_pred=predictions, y_true=Y), tf.float32))),
+                    tf.sqrt(tf.reduce_mean(tf.cast(tf.keras.losses.MAE(y_pred=predictions, y_true=Y), tf.float32)))]
     else:
         accuracy = tf.reduce_mean(tf.cast(tf.equal(predictions, tf.argmax(Y, 1)), tf.float32))
 
@@ -224,7 +232,13 @@ def main():
 
     saver = tf.train.Saver()
 
-    val_acc = 0; test_acc=0; tr_acc=0; best_iter = 0; test_preds=[]
+    if args.reg:
+        val_acc = test_acc = tr_acc = [0, 0]
+        best_iter = 0
+    else:
+        val_acc = 0; test_acc=0; tr_acc=0; best_iter = 0
+
+    test_preds=[]
 
     for i in range(num_epochs):
         print('Epoch num: ', i)
