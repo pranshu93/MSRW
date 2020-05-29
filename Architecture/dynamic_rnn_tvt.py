@@ -13,6 +13,7 @@ from tensorflow.contrib import rnn
 from rnn import FastRNNCell,FastGRNNCell
 from utils import getConfusionMatrix, printFormattedConfusionMatrix, getPrecisionRecall
 import sys
+from scipy.stats import pearsonr
 
 #os.environ["CUDA_VISIBLE_DEVICES"]=""
 
@@ -239,7 +240,7 @@ def main():
 
     if args.reg:
         accuracy = [tf.reduce_mean(tf.cast(tf.keras.losses.MSE(y_pred=predictions, y_true=Y), tf.float32)),
-                    tf.cast(R_squared(y_pred=predictions, y=Y), tf.float32),
+                    tf.reduce_mean(R_squared(y_pred=predictions, y_true=Y), tf.float32),
                     tf.reduce_mean(tf.cast(tf.keras.losses.MAE(y_pred=predictions, y_true=Y), tf.float32))]
     else:
         accuracy = tf.reduce_mean(tf.cast(tf.equal(predictions, tf.argmax(Y, 1)), tf.float32))
@@ -256,14 +257,15 @@ def main():
         tr_acc = [999, 999]
 
         tr_mse_list = []
-        tr_r2_list = []
+        tr_corr_list = []
         tr_mae_list = []
 
         val_mse_list = []
-        val_r2_list = []
+        val_corr_list = []
         val_mae_list = []
+
         test_mse_list = []
-        test_r2_list = []
+        test_corr_list = []
         test_mae_list = []
 
     else:
@@ -290,23 +292,23 @@ def main():
             [test_acc, test_preds] = forward_iter(test_data, test_labels, test_seqlen, slice(0, test_data.__len__()), False)
 
         if args.reg:
-            print('Training loss: {} | Training R^2: {} | Training MAE: {}\n'
-                  'Validation loss: {} | Validation R^2: {}| Validation MAE: {}\n'
-                  'Test loss: {} | Test R^2: {}| Test MAE: {}'
-                  .format(tr_acc[0], tr_acc[1], tr_acc[2],
-                          val_acc[0], val_acc[1], val_acc[2],
-                          test_acc[0], test_acc[1], test_acc[2]))
+            print('Training loss: {} | Training corr. coeff.: {} | Training MAE: {}\n'
+                  'Validation loss: {} | Validation corr. coeff.: {}| Validation MAE: {}\n'
+                  'Test loss: {} | Test corr. coeff.: {}| Test MAE: {}'
+                  .format(tr_acc[0], tr_acc[1][0], tr_acc[2],
+                          val_acc[0], val_acc[1][0], val_acc[2],
+                          test_acc[0], test_acc[1][0], test_acc[2]))
 
             tr_mse_list.append(tr_acc[0])
-            tr_r2_list.append(tr_acc[1])
+            tr_corr_list.append(tr_acc[1][0])
             tr_mae_list.append(tr_acc[2])
 
             val_mse_list.append(val_acc[0])
-            val_r2_list.append(val_acc[1])
+            val_corr_list.append(val_acc[1][0])
             val_mae_list.append(val_acc[2])
 
             test_mse_list.append(test_acc[0])
-            test_r2_list.append(test_acc[1])
+            test_corr_list.append(test_acc[1][0])
             test_mae_list.append(test_acc[2])
 
         #if(max_try_acc < try_acc):	max_try_acc = try_acc
@@ -334,11 +336,11 @@ def main():
         out_handle.close()
 
         # Print R2s
-        out_handle = open(os.path.join(args.out, "regtest_winlen=" + str(max_length // 2) + "_R2.csv"), "a")
+        out_handle = open(os.path.join(args.out, "regtest_winlen=" + str(max_length // 2) + "_corr.csv"), "a")
         # Write a line of output
-        out_handle.write('\t'.join(map(str, tr_r2_list)) + '\n')
-        out_handle.write('\t'.join(map(str, val_r2_list)) + '\n')
-        out_handle.write('\t'.join(map(str, test_r2_list)) + '\n')
+        out_handle.write('\t'.join(map(str, tr_corr_list)) + '\n')
+        out_handle.write('\t'.join(map(str, val_corr_list)) + '\n')
+        out_handle.write('\t'.join(map(str, test_corr_list)) + '\n')
         out_handle.close()
 
         # Print MAEs
